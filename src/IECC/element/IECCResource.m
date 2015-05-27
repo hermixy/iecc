@@ -4,6 +4,6 @@
 * License: GNU GPLv3.                                                          *
 *                                                                              *
 * Language: (Modern) Objective-C.                                              *
-* Description: Implementation of Configuration units.                          *
+* Description: Implementation of Resource units.                               *
 *******************************************************************************/
-#import "IECCConfiguration.h"
+#import "IECCResource.h"

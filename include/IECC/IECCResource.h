@@ -4,6 +4,16 @@
 * License: GNU GPLv3.                                                          *
 *                                                                              *
 * Language: (Modern) Objective-C.                                              *
-* Description: Implementation of Configuration units.                          *
+* Description: Internal representation of a Resource unit for IEC 61131-3      *
+*   programming languages.                                                     *
 *******************************************************************************/
-#import "IECCConfiguration.h"
+#pragma once
+#import "IECCTask.h"
+#import "IECCProgram.h"
+
+/**
+ * Resource unit for the IEC 61131-3 languages.
+ */
+@interface IECCResource
+
+@end
