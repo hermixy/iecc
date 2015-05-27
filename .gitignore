@@ -1,3 +1,5 @@
 iecc
 *.o
 *.dep
+*.tmp
+*.tmp.*
