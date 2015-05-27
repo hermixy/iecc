@@ -5,13 +5,18 @@ INC_IECC = include/IECC
 SRC_IECC = $(shell find $(DIR_IECC) -name "*.m")
 OBJ_IECC = $(SRC_IECC:.m=.o)
 
-IECC=iecc
+IECC_BIN=iecc
+IECC_LIB=iecc.so
 
-all: $(IECC)
+all: $(IECC_BIN)
 
-$(IECC): $(OBJ_IECC)
-	@echo Linking $(IECC)...
-	@$(OBJC) $(OBJ_IECC) -o $(IECC)
+$(IECC_BIN): $(IECC_LIB)
+	@echo Linking $(IECC_BIN)...
+	@$(OBJC) ./$(IECC_LIB) -o $(IECC_BIN)
+
+$(IECC_LIB): $(OBJ_IECC)
+	@echo Linking $(IECC_LIB)...
+	@$(OBJC) $(OBJ_IECC) -shared -o $(IECC_LIB)
 
 $(DIR_IECC)/%.o: $(DIR_IECC)/%.m
 	@echo Compiling $*.m...
@@ -20,7 +25,7 @@ $(DIR_IECC)/%.o: $(DIR_IECC)/%.m
 .PHONY: clean
 
 clean:
-	@rm -f $(IECC)
+	@rm -f $(IECC_BIN) $(IECC_LIB)
 	@rm -f $(shell find . -name "*.o" -or -name "*.dep")
 
 -include $(SRC_IECC:.m=.dep)

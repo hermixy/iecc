@@ -3,3 +3,8 @@ iecc
 *.dep
 *.tmp
 *.tmp.*
+*.exe
+*.dll
+*.so
+*.dylib
+*.hex
