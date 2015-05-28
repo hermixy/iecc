@@ -23,6 +23,7 @@
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
 #pragma once
+#import <Foundation/Foundation.h>
 #import "IECCResource.h"
 
 /**
@@ -64,6 +65,6 @@
  *
  * Note that, for this implementation, the access paths are the Arduino pins.
  */
-@interface IECCConfiguration
+@interface IECCConfiguration: NSObject
   
 @end

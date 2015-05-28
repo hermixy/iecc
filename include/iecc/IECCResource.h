@@ -23,12 +23,13 @@
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
 #pragma once
+#import <Foundation/Foundation.h>
 #import "IECCTask.h"
 #import "IECCProgram.h"
 
 /**
  * Resource unit for the IEC 61131-3 languages.
  */
-@interface IECCResource
+@interface IECCResource: NSObject
 
 @end

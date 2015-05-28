@@ -23,6 +23,7 @@
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
 #pragma once
+#import <Foundation/Foundation.h>
 
 /**
  * Function Block unit for the IEC 61131-3 languages.
@@ -32,6 +33,6 @@
  * inherited from, and inherit from other function blocks in the object oriented
  * sence.
  */
-@interface IECCFunctionBlock
+@interface IECCFunctionBlock: NSObject
 
 @end

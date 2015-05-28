@@ -22,3 +22,7 @@
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
 #import "IECCTask.h"
+
+@implementation IECCTask
+
+@end
