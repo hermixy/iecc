@@ -6,13 +6,13 @@ else
   ifeq ($(shell uname -s),Darwin)
 		OBJC = clang
     LIBS = -framework Foundation -lobjc
-		FLAGS = -fobjc-arc
+		FLAGS =
   else
     # On Linux
     ifeq ($(shell uname -s),Linux)
-			OBJC = gcc
-			LIBS = 
-			FLAGS = 
+			OBJC = clang
+			LIBS = $(shell gnustep-config --base-libs)
+			FLAGS = $(shell gnustep-config --objc-flags)
     else
       # TODO
     endif

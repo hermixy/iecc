@@ -27,9 +27,9 @@
 #import <Foundation/Foundation.h>
 
 int main() {
-  @autoreleasepool
-    NSLOG(@"Hello, world!\n");
-  @end
+  @autoreleasepool {
+    NSLog(@"Hello, world! %@\n", @2.0);
+  };
   
   return EXIT_SUCCESS;
 };
