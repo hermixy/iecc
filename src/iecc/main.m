@@ -24,8 +24,12 @@
 *******************************************************************************/
 #import <stdlib.h>
 #import <stdio.h>
+#import <Foundation/Foundation.h>
 
 int main() {
+  @autoreleasepool
+    NSLOG(@"Hello, world!\n");
+  @end
   
   return EXIT_SUCCESS;
 };

@@ -4,22 +4,23 @@ ifeq ($(OS),Windows_NT)
 else
   # On Mac OS X
   ifeq ($(shell uname -s),Darwin)
+		OBJC = clang
     LIBS = -framework Foundation -lobjc
-		FLAGS =
+		FLAGS = -fobjc-arc
   else
     # On Linux
     ifeq ($(shell uname -s),Linux)
-			LIBS = $(shell gnustep-config --base-libs)
-			FLAGS = $(shell gnustep-config --objc-flags)
+			OBJC = gcc
+			LIBS = 
+			FLAGS = 
     else
-      # BSD, maybe? TODO
+      # TODO
     endif
   endif
 endif
 
 FLEX = flex
 YACC = bison
-OBJC = clang
 
 DIR_IECC = src/iecc
 INC_IECC = include/iecc
