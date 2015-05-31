@@ -23,6 +23,10 @@
 *******************************************************************************/
 %{
   //
+  #import <stdlib.h>
+  #import <stdio.h>
+  
+  //
   extern int yylex(void);
   
   //
@@ -31,33 +35,41 @@
   };
 %}
 
-%token TokenBool
-%token TokenSInt
-%token TokenInt
-%token TokenDInt
-%token TokenLInt
-%token TokenUSInt
-%token TokenUInt
-%token TokenUDInt
-%token TokenULInt
-%token TokenReal
-%token TokenLReal
-%token TokenTime
-%token TokenLTime
-%token TokenDate
-%token TokenLDate
-%token TokenTimeOfDay
-%token TokenLTimeOfDay
-%token TokenDateAndTime
-%token TokenLDateAndTime
-%token TokenString
-%token TokenWString
-%token TokenChar
-%token TokenWChar
-%token TokenByte
-%token TokenWord
-%token TokenDWord
-%token TokenLWord
+%locations
+%token-table
+%error-verbose
+
+%token TOK_ID
 
 %%
 translation_unit: ;
+
+/* Identifier, taken from table 2 of the standard */
+identifier: TOK_ID;
+
+%%
+
+int main() {
+  int x;
+  extern int yyleng;
+  extern int yylineno;
+  extern int yycolumn;
+  extern char *yytext;
+  
+  do {
+    x = yylex();
+    printf("%d:%02d-%02d:", yylineno, yycolumn, yycolumn + x ? yyleng : 0);
+    if(x >= 0x80) {
+      printf("%-20s %s", yytname[x - 255], yytext);
+    } else {
+      if(x) {
+        printf("'%c'", x);
+      } else {
+        printf("EOF");
+      };
+    };
+    printf("\n");
+  } while(x);
+  
+  return EXIT_SUCCESS;
+};

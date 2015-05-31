@@ -24,70 +24,49 @@
 /* Small header */
 %{
   // Header made by Bison:
-  #include "./parser.tmp.h"
+  #import "./parser.tmp.h"
+  
+  //
+  #define YY_USER_ACTION { \
+    yylloc.first_line = yylloc.last_line = yylineno; \
+    yylloc.first_column = yycolumn; \
+    yycolumn += yyleng; \
+    yylloc.last_column = yycolumn; \
+  }
+  
+  //
+  int yycolumn = 1;
 %}
 
 /* Options */
+%option 7bit
 %option noyywrap
+%option yylineno
+%option case-insensitive
 
-/* Constants */
-letter [A-Za-z]
-number [0-9]
+/* Constants, taken from table 2 of the standard */
+letter              [A-Z]
+digit               [0-9]
+bit                 [01]
+octal_digit         [0-7]
+hex_digit           [0-9A-F]
 
 %%
- /* Whitespaces, as described in section
-    6.1.4 of the standard */
-[ \t\n\r]+                              // TODO
- 
- /* Comments, as described in section
-    6.1.5 of the standard */
-"//"                                    // TODO
-"(*"                                    // TODO
-"/*"                                    // TODO
+ /* Whitespace and comments, taken from
+    table 3 of the standard */
+[\r]?[\n]                               yycolumn = 1;
+[ \t]+                                  (void)0;
 
- /* Pragmas, as described in section 6.2
-    of the standard */
-\{[^}]*\}                               // TODO
 
- /* List of keywords */
-BOOL                                    return TokenBool;
-SINT                                    return TokenSInt;
-INT                                     return TokenInt;
-DINT                                    return TokenDInt;
-LINT                                    return TokenLInt;
-USINT                                   return TokenUSInt;
-UINT                                    return TokenUInt;
-UDINT                                   return TokenUDInt;
-ULINT                                   return TokenULInt;
-REAL                                    return TokenReal;
-LREAL                                   return TokenLReal;
-TIME                                    return TokenTime;
-LTIME                                   return TokenLTime;
-DATE                                    return TokenDate;
-LDATE                                   return TokenLDate;
-TIME_OF_DAY                             return TokenTimeOfDay;
-TOD                                     return TokenTimeOfDay;
-LTIME_OF_DAY                            return TokenLTimeOfDay;
-LTOD                                    return TokenLTimeOfDay;
-DATE_AND_TIME                           return TokenDateAndTime;
-DT                                      return TokenDateAndTime;
-LDATE_AND_TIME                          return TokenLDateAndTime;
-LDT                                     return TokenLDateAndTime;
-STRING                                  return TokenString;
-WSTRING                                 return TokenWString;
-CHAR                                    return TokenChar;
-WCHAR                                   return TokenWChar;
-BYTE                                    return TokenByte;
-WORD                                    return TokenWord;
-DWORD                                   return TokenDWord;
-LWORD                                   return TokenLWord;
- 
- /* According to section 6.1.2 of the
-    standard, identifiers may not have
-    multiple nor trailing underscores */
-(_?{letter}+)(_?({letter}|{number})+)*  {
-                                          // TODO: IDENTIFIER
+
+ /* Identifier, taken from table 2 of
+    the standard */
+_?{letter}(_?({letter}|{digit})+)*      {
+                                          // TODO
+                                          return TOK_ID;
                                         };
 
- /* */
+_                                       {
+                                          // TODO: warn about raw _ on program
+                                        };
 .
