@@ -21,6 +21,12 @@
 * You should have received a copy of the GNU General Public License along with *
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
+/* Small header */
+%{
+  // Header made by Bison:
+  #include "./parser.tmp.h"
+%}
+
 /* Options */
 %option noyywrap
 
@@ -44,7 +50,37 @@ number [0-9]
 \{[^}]*\}                               // TODO
 
  /* List of keywords */
- /* TODO */
+BOOL                                    return TokenBool;
+SINT                                    return TokenSInt;
+INT                                     return TokenInt;
+DINT                                    return TokenDInt;
+LINT                                    return TokenLInt;
+USINT                                   return TokenUSInt;
+UINT                                    return TokenUInt;
+UDINT                                   return TokenUDInt;
+ULINT                                   return TokenULInt;
+REAL                                    return TokenReal;
+LREAL                                   return TokenLReal;
+TIME                                    return TokenTime;
+LTIME                                   return TokenLTime;
+DATE                                    return TokenDate;
+LDATE                                   return TokenLDate;
+TIME_OF_DAY                             return TokenTimeOfDay;
+TOD                                     return TokenTimeOfDay;
+LTIME_OF_DAY                            return TokenLTimeOfDay;
+LTOD                                    return TokenLTimeOfDay;
+DATE_AND_TIME                           return TokenDateAndTime;
+DT                                      return TokenDateAndTime;
+LDATE_AND_TIME                          return TokenLDateAndTime;
+LDT                                     return TokenLDateAndTime;
+STRING                                  return TokenString;
+WSTRING                                 return TokenWString;
+CHAR                                    return TokenChar;
+WCHAR                                   return TokenWChar;
+BYTE                                    return TokenByte;
+WORD                                    return TokenWord;
+DWORD                                   return TokenDWord;
+LWORD                                   return TokenLWord;
  
  /* According to section 6.1.2 of the
     standard, identifiers may not have

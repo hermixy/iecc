@@ -31,5 +31,33 @@
   };
 %}
 
+%token TokenBool
+%token TokenSInt
+%token TokenInt
+%token TokenDInt
+%token TokenLInt
+%token TokenUSInt
+%token TokenUInt
+%token TokenUDInt
+%token TokenULInt
+%token TokenReal
+%token TokenLReal
+%token TokenTime
+%token TokenLTime
+%token TokenDate
+%token TokenLDate
+%token TokenTimeOfDay
+%token TokenLTimeOfDay
+%token TokenDateAndTime
+%token TokenLDateAndTime
+%token TokenString
+%token TokenWString
+%token TokenChar
+%token TokenWChar
+%token TokenByte
+%token TokenWord
+%token TokenDWord
+%token TokenLWord
+
 %%
 translation_unit: ;

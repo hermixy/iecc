@@ -6,13 +6,13 @@ else
   ifeq ($(shell uname -s),Darwin)
 		OBJC = clang
     LIBS = -framework Foundation -lobjc
-		FLAGS =
+		FLAGS = -Wall
   else
     # On Linux
     ifeq ($(shell uname -s),Linux)
 			OBJC = clang
 			LIBS = $(shell gnustep-config --base-libs)
-			FLAGS = $(shell gnustep-config --objc-flags)
+			FLAGS = -Wall $(shell gnustep-config --objc-flags)
     else
       # TODO
     endif
@@ -53,9 +53,9 @@ $(DIR_IECC)/%.out.tmp: $(DIR_IECC)/%.lm
 	@echo Building and compiling $*.lm...
 	@$(FLEX) -o $(DIR_IECC)/$*.out.tmp $<
 
-$(DIR_IECC)/%.out.tmp: $(DIR_IECC)/%.ym
+$(DIR_IECC)/%.out.tmp $(DIR_IECC)/%.tmp.h: $(DIR_IECC)/%.ym
 	@echo Building and compiling $*.ym...
-	@$(YACC) -o $(DIR_IECC)/$*.out.tmp $<
+	@$(YACC) -o $(DIR_IECC)/$*.out.tmp --defines=$(DIR_IECC)/$*.tmp.h $<
 
 $(DIR_IECC)/%.out.o: $(DIR_IECC)/%.out.tmp
 	@$(OBJC) -I$(INC_IECC) $(FLAGS) -fPIC -xobjective-c \
@@ -65,7 +65,8 @@ $(DIR_IECC)/%.out.o: $(DIR_IECC)/%.out.tmp
 
 clean:
 	@rm -f $(IECC_BIN) $(IECC_LIB)
-	@rm -f $(shell find . -name "*.o" -or -name "*.dep" -or -name "*.out.tmp")
+	@rm -f $(shell find . -name "*.o" -or -name "*.dep")
+	@rm -f $(shell find . -name "*.out.tmp" -or -name "*.tmp.h")
 
 .SECONDARY:
 	@echo Just works. :)
