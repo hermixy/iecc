@@ -21,7 +21,37 @@
 * You should have received a copy of the GNU General Public License along with *
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
+/* Options */
 %option noyywrap
 
+/* Constants */
+letter [A-Za-z]
+number [0-9]
+
 %%
+ /* Whitespaces, as described in section
+    6.1.4 of the standard */
+[ \t\n\r]+                              // TODO
+ 
+ /* Comments, as described in section
+    6.1.5 of the standard */
+"//"                                    // TODO
+"(*"                                    // TODO
+"/*"                                    // TODO
+
+ /* Pragmas, as described in section 6.2
+    of the standard */
+\{[^}]*\}                               // TODO
+
+ /* List of keywords */
+ /* TODO */
+ 
+ /* According to section 6.1.2 of the
+    standard, identifiers may not have
+    multiple nor trailing underscores */
+(_?{letter}+)(_?({letter}|{number})+)*  {
+                                          // TODO: IDENTIFIER
+                                        };
+
+ /* */
 .
