@@ -27,19 +27,21 @@
   #import "./Parser.tmp.h"
   
   //
-  #define YY_USER_ACTION { \
-    yylloc.first_line = yylloc.last_line = yylineno; \
-    yylloc.first_column = yycolumn; \
-    yycolumn += yyleng; \
-    yylloc.last_column = yycolumn; \
-  }
+  #define YY_USER_ACTION yy_user_action();
   
   //
   #define PUSH for(int i = 0; !i; i = (yy_push_state(i), 1)) i =
   #define POP yy_pop_state()
   
-  //
+  /**
+   *
+   */
   int yycolumn = 1;
+  
+  /**
+   *
+   */
+  void yy_user_action(void);
 %}
 
 /* Options */
@@ -50,28 +52,70 @@
 %option case-insensitive
 
 /* Constants, taken from several places */
-letter              [A-Z]
-digit               [0-9]
-bit                 [01]
-octal_digit         [0-7]
-hex_digit           [0-9A-F]
-gibberish           [A-Z0-9_#]+
+letter                [A-Z]
+digit                 [0-9]
+bit                   [01]
+octal_digit           [0-7]
+hex_digit             [0-9A-F]
+gibberish             [A-Z0-9_][A-Z0-9_#]*
 
 /* Identifier, taken from table 2 of the standard */
-identifier          (_?{letter}(_?({letter}|{digit}))*)
+identifier            (_?{letter}(_?({letter}|{digit}))*)
 
 /* Numeric literal, taken from table 5 of the standard */
-int_literal         (({int_type_name}"#")?{any_int})
-int_type_name       (U?[SDL]?INT)
-any_int             ({signed_int}|{binary_int}|{octal_int}|{hex_int})
-unsigned_int        ({digit}(_?{digit})*)
-signed_int          ([+-]?{unsigned_int})
-binary_int          ("2#"(_?{bit})+)
-octal_int           ("8#"(_?{octal_digit})+)
-hex_int             ("16#"(_?{hex_digit})+)
-real_literal        (({real_type_name}"#")?{signed_int}"."{fraction})
-real_type_name      (L?REAL)
-fraction            ({unsigned_int}("E"{signed_int})?)
+int_literal           ({int_header}?{any_int})
+int_header            ({int_type_name}"#")
+int_type_name         (U?[SDL]?INT)
+any_int               ({signed_int}|{binary_int}|{octal_int}|{hex_int})
+unsigned_int          ({digit}(_?{digit})*)
+signed_int            ([+-]?{unsigned_int})
+binary_int            ("2#"(_?{bit})+)
+octal_int             ("8#"(_?{octal_digit})+)
+hex_int               ("16#"(_?{hex_digit})+)
+real_literal          ({real_header}?{signed_int}"."{fraction})
+real_header           ({real_type_name}"#")
+real_type_name        (L?REAL)
+fraction              ({unsigned_int}("E"{signed_int})?)
+bit_str_literal       ({bit_str_header}?{any_int})
+bit_str_header        ({bit_str_type_name}"#")
+bit_str_type_name     (BOOL|BYTE|[DL]?WORD)
+bool_literal          ({bool_header}?({bit}|TRUE|FALSE))
+bool_header           ({bool_type_name}"#")
+bool_type_name        (BOOL)
+
+/* Character string literals, taken from table 6 of the standard */
+char_literal          ({char_header}?{char_str})
+char_header           (STRING"#")
+char_str              ({single_byte_char_str}|{double_byte_char_str})
+single_byte_char_str  ([']("$"[^\r\n]|[^'$\r\n])*['])
+double_byte_char_str  (["]("$"[^\r\n]|[^"$\r\n])*["])
+
+/* Duration, date and time of day literals, taken from tables 8 and 9 of... */
+/* Oh man, this should generate a HUGE automata graph! :O */
+time_literal          ({duration}|{tod}|{date}|{dt})
+duration              ({time_header}[+-]?{interval})
+time_header           ({time_type_name}"#")
+time_type_name        (L?T(IME)?)
+fix_point             ({unsigned_int}("."{unsigned_int})?)
+interval              ({days}|{hours}|{minutes}|{secs}|{msecs}|{usecs}|{nsecs})
+days                  ({fix_point}"d"|({unsigned_int}d_?)?{hours}?)
+hours                 ({fix_point}"h"|({unsigned_int}h_?)?{minutes}?)
+minutes               ({fix_point}"m"|({unsigned_int}m_?)?{secs}?)
+secs                  ({fix_point}"s"|({unsigned_int}s_?)?{msecs}?)
+msecs                 ({fix_point}"ms"|({unsigned_int}ms_?)?{usecs}?)
+usecs                 ({fix_point}"us"|({unsigned_int}us_?)?{nsecs}?)
+nsecs                 ({fix_point}"ns")
+tod                   ({tod_header}{daytime})
+tod_header            ({tod_type_name}"#")
+tod_type_name         (L?TIME_OF_DAY|L?TOD)
+daytime               ({unsigned_int}":"{unsigned_int}":"{fix_point})
+date                  ({date_header}{date_literal})
+date_header           ({date_type_name}"#")
+date_type_name        (L?D(ATE)?)
+date_literal          ({unsigned_int}"-"{unsigned_int}"-"{unsigned_int})
+dt                    ({dt_header}{date_literal}"-"{daytime})
+dt_header             ({dt_type_name}"#")
+dt_type_name          (L?DATE_AND_TIME|L?DT)
 
 /* */
 %s COMMENT_SLASH
@@ -108,16 +152,11 @@ fraction            ({unsigned_int}("E"{signed_int})?)
   "/*"                                  PUSH COMMENT_SLASH;
   "(*"                                  PUSH COMMENT_PAREN;
   
-  /* Identifier, taken from table 2 of
-     the standard */
-  {identifier}                          {
+  /* Pragmas, taken from table 4 of the
+     standard */
+  \{[^}]*\}                             {
                                           // TODO
-                                          return TOK_IDENTIFIER;
-                                        };
-  
-  {identifier}{gibberish}               {
-                                          // TODO
-                                          return TOK_INVALID;
+                                          return TOK_PRAGMA;
                                         };
   
   /* Numeric literals, taken from table
@@ -142,15 +181,65 @@ fraction            ({unsigned_int}("E"{signed_int})?)
                                           return TOK_INVALID;
                                         };
   
-  /* Pragmas, taken from table 4 of the
-     standard */
-  \{[^}]*\}                             {
+  {bit_str_literal}                     {
                                           // TODO
-                                          return TOK_PRAGMA;
+                                          return TOK_BIT_STR_LITERAL;
                                         };
-
+  
+  {bit_str_literal}{gibberish}          {
+                                          // TODO
+                                          return TOK_INVALID;
+                                        };
+  
+  {bool_literal}                        {
+                                          // TODO
+                                          return TOK_BOOL_LITERAL;
+                                        };
+  
+  {bool_literal}{gibberish}             {
+                                          // TODO
+                                          return TOK_INVALID;
+                                        };
+  
+  /* Character string literals, taken
+     from table 6 of the standard */
+  {char_literal}                        {
+                                          // TODO
+                                          return TOK_CHAR_LITERAL;
+                                        };
+  
+  /* Duration, date and time of day
+     literals, taken from table 8 and 9
+     of the standard */
+  {time_literal}                        {
+                                          // TODO
+                                          return TOK_TIME_LITERAL;
+                                        };
+  
+  /* Identifier, taken from table 2 of
+     the standard */
+  {identifier}                          {
+                                          // TODO
+                                          return TOK_IDENTIFIER;
+                                        };
+  
+  {identifier}{gibberish}               {
+                                          // TODO
+                                          return TOK_INVALID;
+                                        };
 }
 
 .                                       {
                                           // TODO: warn about unknown char
                                         };
+
+%%
+
+// Handles column numbering
+void yy_user_action(void) {
+  // I don't remember why this works, sorry...
+  yylloc.first_line = yylloc.last_line = yylineno;
+  yylloc.first_column = yycolumn;
+  yycolumn += yyleng;
+  yylloc.last_column = yycolumn;
+};

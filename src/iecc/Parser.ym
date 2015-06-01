@@ -51,6 +51,17 @@
 /* Table 5 */
 %token TOK_INT_LITERAL
 %token TOK_REAL_LITERAL
+%token TOK_BIT_STR_LITERAL
+%token TOK_BOOL_LITERAL
+
+/* Table 6 */
+%token TOK_CHAR_LITERAL
+
+/* Tables 8 and 9 */
+%token TOK_TIME_LITERAL;
+
+/* Table 10 */
+
 
 %%
 translation_unit: ;
@@ -70,21 +81,14 @@ numeric_literal: int_literal
 
 int_literal: TOK_INT_LITERAL;
 real_literal: TOK_REAL_LITERAL;
+bit_str_literal: TOK_BIT_STR_LITERAL;
+bool_literal: TOK_BOOL_LITERAL;
 
+/* Character string literals, taken from table 6 of the standard */
+char_literal: TOK_CHAR_LITERAL;
 
-
-
-
-
-
-
-
-
-
-char_literal:;
-time_literal:;
-bit_str_literal:;
-bool_literal:;
+/* Duration, data and time of day literals, taken from tables 8 and 9 of... */
+time_literal: TOK_TIME_LITERAL;
 
 %%
 
