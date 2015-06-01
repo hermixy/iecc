@@ -216,6 +216,33 @@ dt_type_name          (L?DATE_AND_TIME|L?DT)
                                           return TOK_TIME_LITERAL;
                                         };
   
+  /* Elementary data types, taken from
+     table 10 of the standard */
+SINT                                    return TOK_SINT;
+INT                                     return TOK_INT;
+DINT                                    return TOK_DINT;
+LINT                                    return TOK_LINT;
+USINT                                   return TOK_USINT;
+UINT                                    return TOK_UINT;
+UDINT                                   return TOK_UDINT;
+ULINT                                   return TOK_ULINT;
+REAL                                    return TOK_REAL;
+LREAL                                   return TOK_LREAL;
+BOOL                                    return TOK_BOOL;
+BYTE                                    return TOK_BYTE;
+WORD                                    return TOK_WORD;
+DWORD                                   return TOK_DWORD;
+LWORD                                   return TOK_LWORD;
+STRING                                  return TOK_STRING;
+WSTRING                                 return TOK_WSTRING;
+CHAR                                    return TOK_CHAR;
+WCHAR                                   return TOK_WCHAR;
+DATE                                    return TOK_DATE;
+LDATE                                   return TOK_LDATE;
+TIME                                    return TOK_TIME;
+LTIME                                   return TOK_LTIME;
+  
+  
   /* Identifier, taken from table 2 of
      the standard */
   {identifier}                          {

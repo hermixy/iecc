@@ -61,7 +61,29 @@
 %token TOK_TIME_LITERAL;
 
 /* Table 10 */
-
+%token TOK_SINT
+%token TOK_INT
+%token TOK_DINT
+%token TOK_LINT
+%token TOK_USINT
+%token TOK_UINT
+%token TOK_UDINT
+%token TOK_ULINT
+%token TOK_REAL
+%token TOK_LREAL
+%token TOK_BOOL
+%token TOK_BYTE
+%token TOK_WORD
+%token TOK_DWORD
+%token TOK_LWORD
+%token TOK_STRING
+%token TOK_WSTRING
+%token TOK_CHAR
+%token TOK_WCHAR
+%token TOK_DATE
+%token TOK_LDATE
+%token TOK_TIME
+%token TOK_LTIME
 
 %%
 translation_unit: ;
@@ -89,6 +111,64 @@ char_literal: TOK_CHAR_LITERAL;
 
 /* Duration, data and time of day literals, taken from tables 8 and 9 of... */
 time_literal: TOK_TIME_LITERAL;
+
+/* Elementary data types, taken from table 10 of the standard */
+data_type_access: elem_type_name
+                | derived_type_access;
+
+elem_type_name: numeric_type_name
+              | bit_str_type_name
+              | string_type_name
+              | date_type_name
+              | time_type_name;
+
+numeric_type_name: int_type_name
+                 | real_type_name;
+
+int_type_name: sign_int_type_name
+             | unsign_int_type_name;
+
+sign_int_type_name: TOK_SINT
+                  | TOK_INT
+                  | TOK_DINT
+                  | TOK_LINT;
+
+unsign_int_type_name: TOK_USINT
+                    | TOK_UINT
+                    | TOK_UDINT
+                    | TOK_ULINT;
+
+real_type_name: TOK_REAL
+              | TOK_LREAL;
+
+bit_str_type_name: TOK_BOOL
+                 | TOK_BYTE
+                 | TOK_WORD
+                 | TOK_DWORD
+                 | TOK_LWORD;
+
+string_type_name: TOK_STRING string_size
+                | TOK_WSTRING string_size
+                | TOK_CHAR
+                | TOK_WCHAR;
+
+string_size: /* TODO */;
+
+date_type_name: TOK_DATE
+              | TOK_LDATE;
+
+time_type_name: TOK_TIME
+              | TOK_LTIME;
+
+
+
+
+
+
+
+
+derived_type_access: ;
+
 
 %%
 
