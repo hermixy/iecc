@@ -26,10 +26,11 @@
 #import <stdio.h>
 #import <Foundation/Foundation.h>
 
-//~ int main() {
-  //~ @autoreleasepool {
-    //~ NSLog(@"Hello, world! %@\n", @2.0);
-  //~ };
+/*
+int main() {
+  @autoreleasepool {
+    NSLog(@"Hello, world! %@\n", @2.0);
+  };
   
-  //~ return EXIT_SUCCESS;
-//~ };
+  return EXIT_SUCCESS;
+};*/

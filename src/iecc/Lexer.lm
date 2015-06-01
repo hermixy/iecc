@@ -24,7 +24,7 @@
 /* Small header */
 %{
   // Header made by Bison:
-  #import "./parser.tmp.h"
+  #import "./Parser.tmp.h"
   
   //
   #define YY_USER_ACTION { \
@@ -49,12 +49,29 @@
 %option yylineno
 %option case-insensitive
 
-/* Constants, taken from table 2 of the standard */
+/* Constants, taken from several places */
 letter              [A-Z]
 digit               [0-9]
 bit                 [01]
 octal_digit         [0-7]
 hex_digit           [0-9A-F]
+gibberish           [A-Z0-9_#]+
+
+/* Identifier, taken from table 2 of the standard */
+identifier          (_?{letter}(_?({letter}|{digit}))*)
+
+/* Numeric literal, taken from table 5 of the standard */
+int_literal         (({int_type_name}"#")?{any_int})
+int_type_name       (U?[SDL]?INT)
+any_int             ({signed_int}|{binary_int}|{octal_int}|{hex_int})
+unsigned_int        ({digit}(_?{digit})*)
+signed_int          ([+-]?{unsigned_int})
+binary_int          ("2#"(_?{bit})+)
+octal_int           ("8#"(_?{octal_digit})+)
+hex_int             ("16#"(_?{hex_digit})+)
+real_literal        (({real_type_name}"#")?{signed_int}"."{fraction})
+real_type_name      (L?REAL)
+fraction            ({unsigned_int}("E"{signed_int})?)
 
 /* */
 %s COMMENT_SLASH
@@ -69,7 +86,9 @@ hex_digit           [0-9A-F]
   /* We are inside a "/*" comment block
      which means we can nest it. */
   "/*"                                  PUSH COMMENT_SLASH;
+  
   "*/"                                  POP;
+  
   .                                     (void)0;
 }
 
@@ -77,7 +96,9 @@ hex_digit           [0-9A-F]
   /* We are inside a "(*" comment block
      which means we can nest it. */
   "(*"                                  PUSH COMMENT_PAREN;
+  
   "*)"                                  POP;
+  
   .                                     (void)0;
 }
 
@@ -89,23 +110,45 @@ hex_digit           [0-9A-F]
   
   /* Identifier, taken from table 2 of
      the standard */
-  _?{letter}(_?({letter}|{digit})+)*    {
+  {identifier}                          {
                                           // TODO
-                                          return TOK_ID;
+                                          return TOK_IDENTIFIER;
                                         };
-
+  
+  {identifier}{gibberish}               {
+                                          // TODO
+                                          return TOK_INVALID;
+                                        };
+  
+  /* Numeric literals, taken from table
+     5 of the standard */
+  {int_literal}                         {
+                                          // TODO
+                                          return TOK_INT_LITERAL;
+                                        };
+  
+  {int_literal}{gibberish}              {
+                                          // TODO
+                                          return TOK_INVALID;
+                                        };
+  
+  {real_literal}                        {
+                                          // TODO
+                                          return TOK_REAL_LITERAL;
+                                        };
+  
+  {real_literal}{gibberish}             {
+                                          // TODO
+                                          return TOK_INVALID;
+                                        };
+  
   /* Pragmas, taken from table 4 of the
      standard */
-  \{[^}]\}                              {
-                                          // TODO: handle pragma
+  \{[^}]*\}                             {
+                                          // TODO
+                                          return TOK_PRAGMA;
                                         };
 
-
-  _                                     {
-                                          // TODO: warn about raw _ on program,
-                                          // and the fact that you can't use any
-                                          // double or trailing underscores ;)
-                                        };
 }
 
 .                                       {

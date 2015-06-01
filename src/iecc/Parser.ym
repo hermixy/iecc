@@ -39,13 +39,52 @@
 %token-table
 %error-verbose
 
-%token TOK_ID
+/* Helper */
+%token TOK_INVALID
+
+/* Table 2 */
+%token TOK_IDENTIFIER
+
+/* Table 4 */
+%token TOK_PRAGMA
+
+/* Table 5 */
+%token TOK_INT_LITERAL
+%token TOK_REAL_LITERAL
 
 %%
 translation_unit: ;
 
 /* Identifier, taken from table 2 of the standard */
-identifier: TOK_ID;
+identifier: TOK_IDENTIFIER;
+
+/* Numeric literals, taken from table 5 of the standard */
+constant: numeric_literal
+        | char_literal
+        | time_literal
+        | bit_str_literal
+        | bool_literal;
+
+numeric_literal: int_literal
+               | real_literal;
+
+int_literal: TOK_INT_LITERAL;
+real_literal: TOK_REAL_LITERAL;
+
+
+
+
+
+
+
+
+
+
+
+char_literal:;
+time_literal:;
+bit_str_literal:;
+bool_literal:;
 
 %%
 
