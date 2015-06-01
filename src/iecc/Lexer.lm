@@ -61,6 +61,7 @@ gibberish             [A-Z0-9_][A-Z0-9_#]*
 
 /* Identifier, taken from table 2 of the standard */
 identifier            (_?{letter}(_?({letter}|{digit}))*)
+qualified_identifier  ({identifier}("."{identifier})*)
 
 /* Numeric literal, taken from table 5 of the standard */
 int_literal           ({int_header}?{any_int})
@@ -127,7 +128,7 @@ dt_type_name          (L?DATE_AND_TIME|L?DT)
 [ \t]+                                  (void)0;
 
 <COMMENT_SLASH>{
-  /* We are inside a "/*" comment block
+  /* We are inside a / * comment block
      which means we can nest it. */
   "/*"                                  PUSH COMMENT_SLASH;
   
@@ -137,7 +138,7 @@ dt_type_name          (L?DATE_AND_TIME|L?DT)
 }
 
 <COMMENT_PAREN>{
-  /* We are inside a "(*" comment block
+  /* We are inside a ( * comment block
      which means we can nest it. */
   "(*"                                  PUSH COMMENT_PAREN;
   
@@ -161,9 +162,19 @@ dt_type_name          (L?DATE_AND_TIME|L?DT)
   
   /* Numeric literals, taken from table
      5 of the standard */
+  {unsigned_int}                        {
+                                          // TODO
+                                          return TOK_UNSIGNED_INT_LITERAL;
+                                        };
+  
+  {signed_int}                          {
+                                          // TODO
+                                          return TOK_SIGNED_INT_LITERAL;
+                                        };
+  
   {int_literal}                         {
                                           // TODO
-                                          return TOK_INT_LITERAL;
+                                          return TOK_GENERIC_LITERAL;
                                         };
   
   {int_literal}{gibberish}              {
@@ -218,42 +229,64 @@ dt_type_name          (L?DATE_AND_TIME|L?DT)
   
   /* Elementary data types, taken from
      table 10 of the standard */
-SINT                                    return TOK_SINT;
-INT                                     return TOK_INT;
-DINT                                    return TOK_DINT;
-LINT                                    return TOK_LINT;
-USINT                                   return TOK_USINT;
-UINT                                    return TOK_UINT;
-UDINT                                   return TOK_UDINT;
-ULINT                                   return TOK_ULINT;
-REAL                                    return TOK_REAL;
-LREAL                                   return TOK_LREAL;
-BOOL                                    return TOK_BOOL;
-BYTE                                    return TOK_BYTE;
-WORD                                    return TOK_WORD;
-DWORD                                   return TOK_DWORD;
-LWORD                                   return TOK_LWORD;
-STRING                                  return TOK_STRING;
-WSTRING                                 return TOK_WSTRING;
-CHAR                                    return TOK_CHAR;
-WCHAR                                   return TOK_WCHAR;
-DATE                                    return TOK_DATE;
-LDATE                                   return TOK_LDATE;
-TIME                                    return TOK_TIME;
-LTIME                                   return TOK_LTIME;
+  SINT                                  return TOK_SINT;
+  INT                                   return TOK_INT;
+  DINT                                  return TOK_DINT;
+  LINT                                  return TOK_LINT;
+  USINT                                 return TOK_USINT;
+  UINT                                  return TOK_UINT;
+  UDINT                                 return TOK_UDINT;
+  ULINT                                 return TOK_ULINT;
+  REAL                                  return TOK_REAL;
+  LREAL                                 return TOK_LREAL;
+  BOOL                                  return TOK_BOOL;
+  BYTE                                  return TOK_BYTE;
+  WORD                                  return TOK_WORD;
+  DWORD                                 return TOK_DWORD;
+  LWORD                                 return TOK_LWORD;
+  STRING                                return TOK_STRING;
+  WSTRING                               return TOK_WSTRING;
+  CHAR                                  return TOK_CHAR;
+  WCHAR                                 return TOK_WCHAR;
+  DATE                                  return TOK_DATE;
+  LDATE                                 return TOK_LDATE;
+  TIME                                  return TOK_TIME;
+  LTIME                                 return TOK_LTIME;
+  TIME_OF_DAY                           return TOK_TOD;
+  TOD                                   return TOK_TOD;
+  LTOD                                  return TOK_LTOD;
+  DATE_AND_TIME                         return TOK_DT;
+  DT                                    return TOK_DT;
+  LDT                                   return TOK_LDT;
   
+  /* User-defined data types, taken
+     from table 10 of the standard */
+  TYPE                                  return TOK_TYPE;
+  END_TYPE                              return TOK_END_TYPE;
   
   /* Identifier, taken from table 2 of
      the standard */
-  {identifier}                          {
+  ({identifier}|{qualified_identifier}) {
                                           // TODO
+                                          // We should check for types here!
                                           return TOK_IDENTIFIER;
                                         };
   
   {identifier}{gibberish}               {
                                           // TODO
+                                          // We could be TOK_ENUM_LITERAL here!
                                           return TOK_INVALID;
                                         };
+  
+  /* Operators and stuff */
+  "["                                   return '[';
+  "]"                                   return ']';
+  ":"                                   return ':';
+  "("                                   return '(';
+  ")"                                   return ')';
+  ","                                   return ',';
+  ":="                                  return TOK_SET;
+  ".."                                  return TOK_DOTDOT;
 }
 
 .                                       {

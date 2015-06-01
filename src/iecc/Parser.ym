@@ -42,14 +42,21 @@
 /* Helper */
 %token TOK_INVALID
 
+/* Operators */
+%token TOK_SET
+%token TOK_DOTDOT
+
 /* Table 2 */
 %token TOK_IDENTIFIER
+%token TOK_QUALIFIED_IDENTIFIER
 
 /* Table 4 */
 %token TOK_PRAGMA
 
 /* Table 5 */
-%token TOK_INT_LITERAL
+%token TOK_SIGNED_INT_LITERAL
+%token TOK_UNSIGNED_INT_LITERAL
+%token TOK_GENERIC_INT_LITERAL
 %token TOK_REAL_LITERAL
 %token TOK_BIT_STR_LITERAL
 %token TOK_BOOL_LITERAL
@@ -84,12 +91,43 @@
 %token TOK_LDATE
 %token TOK_TIME
 %token TOK_LTIME
+%token TOK_TOD
+%token TOK_LTOD
+%token TOK_DT
+%token TOK_LDT
+
+/* Table 11 */
+%token TOK_SIMPLE_TYPENAME
+%token TOK_SUBRANGE_TYPENAME
+%token TOK_ENUM_TYPENAME
+%token TOK_ARRAY_TYPENAME
+%token TOK_STRUCT_TYPENAME
+%token TOK_STRING_TYPENAME
+%token TOK_CLASS_TYPENAME
+%token TOK_REF_TYPENAME
+%token TOK_INTERFACE_TYPENAME
+%token TOK_TYPE
+%token TOK_END_TYPE
+%token TOK_ENUM_LITERAL
 
 %%
 translation_unit: ;
 
 /* Identifier, taken from table 2 of the standard */
-identifier: TOK_IDENTIFIER;
+simple_identifier: TOK_IDENTIFIER
+                 /* Taken from table 10 */
+                 | TOK_SIMPLE_TYPENAME
+                 | TOK_SUBRANGE_TYPENAME
+                 | TOK_ENUM_TYPENAME
+                 | TOK_ARRAY_TYPENAME
+                 | TOK_STRUCT_TYPENAME
+                 | TOK_STRING_TYPENAME
+                 | TOK_CLASS_TYPENAME
+                 | TOK_REF_TYPENAME
+                 | TOK_INTERFACE_TYPENAME;
+
+qualified_identifier: simple_identifier
+                    | TOK_QUALIFIED_IDENTIFIER;
 
 /* Numeric literals, taken from table 5 of the standard */
 constant: numeric_literal
@@ -101,9 +139,14 @@ constant: numeric_literal
 numeric_literal: int_literal
                | real_literal;
 
-int_literal: TOK_INT_LITERAL;
+int_literal: TOK_SIGNED_INT_LITERAL
+           | TOK_UNSIGNED_INT_LITERAL
+           | TOK_GENERIC_INT_LITERAL;
+
 real_literal: TOK_REAL_LITERAL;
+
 bit_str_literal: TOK_BIT_STR_LITERAL;
+
 bool_literal: TOK_BOOL_LITERAL;
 
 /* Character string literals, taken from table 6 of the standard */
@@ -120,7 +163,12 @@ elem_type_name: numeric_type_name
               | bit_str_type_name
               | string_type_name
               | date_type_name
-              | time_type_name;
+              | time_type_name
+              | tod_type_name /* (For now) I believe that the standard */
+              | dt_type_name; /* forgot to add these rules here... =/  */
+
+elem_type_name_opt: /* empty */
+                  | elem_type_name;
 
 numeric_type_name: int_type_name
                  | real_type_name;
@@ -152,7 +200,8 @@ string_type_name: TOK_STRING string_size
                 | TOK_CHAR
                 | TOK_WCHAR;
 
-string_size: /* TODO */;
+string_size: /* empty */
+           | '[' TOK_UNSIGNED_INT_LITERAL ']';
 
 date_type_name: TOK_DATE
               | TOK_LDATE;
@@ -160,6 +209,104 @@ date_type_name: TOK_DATE
 time_type_name: TOK_TIME
               | TOK_LTIME;
 
+tod_type_name: TOK_TOD
+             | TOK_LTOD;
+
+dt_type_name: TOK_DT
+            | TOK_LDT
+
+/* User data types, taken from table 11 of the standard */
+derived_type_access: single_elem_type_access
+                   | array_type_access
+                   | struct_type_access
+                   | string_type_access
+                   | class_type_access
+                   | ref_type_access
+                   | interface_type_access;
+
+single_elem_type_access: simple_type_access
+                       | subrange_type_access
+                       | enum_type_access;
+
+simple_type_access: TOK_SIMPLE_TYPENAME;
+
+subrange_type_access: TOK_SUBRANGE_TYPENAME;
+
+enum_type_access: TOK_ENUM_TYPENAME;
+
+array_type_access: TOK_ARRAY_TYPENAME;
+
+struct_type_access: TOK_STRUCT_TYPENAME;
+
+string_type_access: TOK_STRING_TYPENAME;
+
+class_type_access: TOK_CLASS_TYPENAME;
+
+ref_type_access: TOK_REF_TYPENAME;
+
+interface_type_access: TOK_INTERFACE_TYPENAME;
+
+data_type_decl: TOK_TYPE type_decl_list TOK_END_TYPE;
+
+type_decl_list: type_decl ";"
+              | type_decl_list type_decl ";";
+
+type_decl: simple_type_decl
+         | subrange_type_decl
+         | enum_type_decl
+         | array_type_decl
+         | struct_type_decl
+         | str_type_decl
+         | ref_type_decl;
+
+simple_type_decl: simple_identifier ':' simple_spec_init;
+
+simple_spec_init: simple_spec simple_set_value;
+
+simple_spec: elem_type_name
+           | simple_type_access;
+
+simple_set_value: /* empty */
+                | TOK_SET constant_expr;
+
+subrange_type_decl: simple_identifier ':' subrange_spec_init;
+
+subrange_spec_init: subrange_spec subrange_set_value;
+
+subrange_spec: int_type_name '(' subrange ')'
+             | subrange_type_access;
+
+subrange: constant_expr TOK_DOTDOT constant_expr;
+
+subrange_set_value: /* empty */
+                  | TOK_SET TOK_SIGNED_INT_LITERAL;
+
+enum_type_decl: simple_identifier ':' enum_type_decl2;
+
+enum_type_decl2: elem_type_name_opt named_spec_init
+               | enum_spec_init;
+
+named_spec_init: '(' enum_value_spec_list ')' named_set_value;
+
+named_set_value: /* empty */
+               | TOK_SET enum_value;
+
+enum_value_spec_list: enum_value_spec
+                    | enum_value_spec_list ',' enum_value_spec;
+
+enum_spec_init: enum_spec_init_type named_set_value;
+
+enum_spec_init_type: '(' enum_value_spec_list ')'
+                   | enum_type_access;
+
+enum_value_spec: simple_identifier enum_value_spec_set_value;
+
+enum_value_spec_set_value: /* empty */
+                         | TOK_SET int_literal
+                         | TOK_SET constant_expr;
+
+enum_value: simple_identifier
+          | TOK_ENUM_LITERAL;
 
 
 
@@ -167,11 +314,20 @@ time_type_name: TOK_TIME
 
 
 
-derived_type_access: ;
 
+
+
+
+
+
+constant_expr:;
 
 %%
 
+/**
+ * Temporary main function. Just lexes stdin and show which
+ * tokens were found. :)
+ */
 int main() {
   int x;
   extern int yyleng;
