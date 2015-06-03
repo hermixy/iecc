@@ -56,6 +56,7 @@
 %error-verbose
 
 /* Helper */
+%token TOK_TODO
 %token TOK_INVALID
 
 /* Operators */
@@ -158,6 +159,29 @@
 /* Table 16 */
 %token TOK_DIRECT_VARIABLE
 %token TOK_DIRECT_VARIABLE_PART;
+
+/* Table 19 */
+%token TOK_FUNCTION
+%token TOK_END_FUNCTION
+
+/* Tables 40 and 41 */
+%token TOK_FUNCTION_BLOCK
+%token TOK_END_FUNCTION_BLOCK
+%token TOK_FINAL
+%token TOK_ABSTRACT
+%token TOK_EXTENDS
+%token TOK_IMPLEMENTS
+%token TOK_METHOD
+%token TOK_END_METHOD
+%token TOK_OVERRIDE
+
+/* Placeholders! TODO! */
+%token TOK_LANG_LD
+%token TOK_LANG_FB
+%token TOK_LANG_IL
+%token TOK_LANG_ST
+%token TOK_LANG_SFC
+%token TOK_LANG_C
 
 /******************************************************************************/
 %%
@@ -725,31 +749,153 @@ var_spec: simple_spec
 var_spec_str_spec: TOK_STRING string_size
                  | TOK_WSTRING string_size;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* Directly represented variables, taken from table 16 of the standard */
 direct_variable: TOK_DIRECT_VARIABLE
                | TOK_DIRECT_VARIABLE_PART;
 
+/* Function declarations, taken from table 19 of the standard */
+func_name: std_func_name
+         | derived_func_name;
+
+func_access: path func_name;
+
+std_func_name: TOK_TODO;
+
+derived_func_name: simple_identifier;
+
+func_decl: TOK_FUNCTION derived_func_name func_data_type_access
+           using_directive_list func_decl_var_decl_list func_body
+           TOK_END_FUNCTION;
+
+func_data_type_access: /* empty */
+                     | ':' data_type_access;
+
+using_directive_list: /* empty */
+                    | using_directive_list using_directive;
+
+func_decl_var_decl_list: /* empty */
+                       | func_decl_var_decl_list func_decl_var_decl;
+
+func_decl_var_decl: io_var_decls
+                  | func_var_decls
+                  | temp_var_decls;
+
+io_var_decls: input_decls
+            | output_decls
+            | in_out_decls;
+
+func_var_decls: external_var_decls
+              | var_decls;
+
+func_body: ladder_diagram
+         | fb_diagram
+         | instruction_list
+         | stmt_list
+         | other_languages;
+
+/* Function block type and instance declarations, taken from tables 40 and 41 */
+fb_type_name: std_fb_name
+            | derived_fb_name;
+
+fb_type_access: path fb_type_name;
+
+std_fb_name: TOK_TODO;
+
+derived_fb_name: simple_identifier;
+
+fb_decl: TOK_FUNCTION_BLOCK final_abstract_opt derived_fb_name
+         using_directive_list fb_decl_extends fb_decl_implements
+         fb_decl_decl_list method_decl_list fb_body_opt TOK_END_FUNCTION_BLOCK;
+
+fb_body_opt: /* empty */
+           | fb_body;
+
+method_decl_list: /* empty */
+                | method_decl_list method_decl;
+
+final_abstract_opt: /* empty */
+                  | TOK_FINAL
+                  | TOK_ABSTRACT;
+
+fb_decl_extends: /* empty */
+               | TOK_EXTENDS fb_type_access
+               | TOK_EXTENDS class_type_access;
+
+fb_decl_implements: /* empty */
+                  | TOK_IMPLEMENTS interface_name_list;
+
+fb_decl_decl_list: /* empty */
+                 | fb_decl_decl_list fb_decl_decl;
+
+fb_decl_decl: fb_io_var_decls
+            | func_var_decls
+            | temp_var_decls
+            | other_var_decls;
+
+fb_io_var_decls: fb_input_decls
+               | fb_output_decls
+               | in_out_decls;
+
+fb_input_decls: TOK_VAR_INPUT retain_non_retain_opt fb_input_decl_list
+                TOK_END_VAR;
+
+fb_input_decl_list: /* empty */
+                  | fb_input_decl_list fb_input_decl ';';
+
+fb_input_decl: var_decl_init
+             | edge_decl
+             | array_conform_decl;
+
+fb_output_decls: TOK_VAR_OUTPUT retain_non_retain_opt fb_output_decl_list
+                 TOK_END_VAR;
+
+fb_output_decl_list: /* empty */
+                   | fb_output_decl_list fb_output_decl ';';
+
+fb_output_decl: var_decl_init
+              | array_conform_decl;
+
+other_var_decls: retain_var_decls
+               | no_retain_var_decls
+               | loc_partly_var_decl;
+
+no_retain_var_decls: TOK_VAR TOK_NON_RETAIN access_spec_opt var_decl_init_list
+                     TOK_END_VAR;
+
+fb_body: sfc
+       | ladder_diagram
+       | fb_diagram
+       | instruction_list
+       | stmt_list
+       | other_languages;
+
+method_decl: TOK_METHOD access_spec final_abstract_opt override_opt method_name
+             method_decl_decl_list func_body TOK_END_METHOD;
+
+override_opt: /* empty */
+            | TOK_OVERRIDE;
+
+method_name: simple_identifier;
+
+method_decl_decl_list: /* empty */
+                     | method_decl_decl_list method_decl_decl;
+
+method_decl_decl: io_var_decls
+                | func_var_decls
+                | temp_var_decls;
 
 
 
 
 
 
+/* Placeholders! TODO! */
+ladder_diagram: TOK_LANG_LD;
+fb_diagram: TOK_LANG_FB;
+instruction_list: TOK_LANG_IL;
+stmt_list: TOK_LANG_ST;
+sfc: TOK_LANG_SFC;
+other_languages: TOK_LANG_C;
 
 %%
 

@@ -91,7 +91,6 @@ single_byte_char_str  ([']("$"[^\r\n]|[^'$\r\n])*['])
 double_byte_char_str  (["]("$"[^\r\n]|[^"$\r\n])*["])
 
 /* Duration, date and time of day literals, taken from tables 8 and 9 of... */
-/* Oh man, this should generate a HUGE automata graph! :O */
 time_literal          ({duration}|{tod}|{date}|{dt})
 duration              ({time_header}[+-]?{interval})
 time_header           ({time_type_name}"#")
@@ -116,6 +115,8 @@ date_literal          ({unsigned_int}"-"{unsigned_int}"-"{unsigned_int})
 dt                    ({dt_header}{date_literal}"-"{daytime})
 dt_header             ({dt_type_name}"#")
 dt_type_name          (L?DATE_AND_TIME|L?DT)
+
+
 
 
 
@@ -333,6 +334,32 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
                                           // TODO
                                           return TOK_DIRECT_VARIABLE;
                                         };
+  
+  /* Function declarations, taken from
+     table 19 of the standard */
+  FUNCTION                              return TOK_FUNCTION;
+  END_FUNCTION                          return TOK_END_FUNCTION;
+  
+  /* Function block type and instance
+     declarations, taken from tables 40
+     and 41 */
+  FUNCTION_BLOCK                        return TOK_FUNCTION_BLOCK;
+  END_FUNCTION_BLOCK                    return TOK_FUNCTION_BLOCK;
+  FINAL                                 return TOK_FINAL;
+  ABSTRACT                              return TOK_ABSTRACT;
+  EXTENDS                               return TOK_EXTENDS;
+  IMPLEMENTS                            return TOK_IMPLEMENTS;
+  METHOD                                return TOK_METHOD;
+  END_METHOD                            return TOK_END_METHOD;
+  OVERRIDE                              return TOK_OVERRIDE;
+  
+  /* Placeholders! TODO! TODO! TODO! */
+  aaaaa                                 return TOK_LANG_LD;
+  bbbbb                                 return TOK_LANG_FB;
+  ccccc                                 return TOK_LANG_IL;
+  ddddd                                 return TOK_LANG_ST;
+  eeeee                                 return TOK_LANG_SFC;
+  fffff                                 return TOK_LANG_C;
   
   /* Identifier, taken from table 2 of
      the standard; had to be in the end
