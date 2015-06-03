@@ -265,9 +265,13 @@ dt_type_name          (L?DATE_AND_TIME|L?DT)
   END_TYPE                              return TOK_END_TYPE;
   ARRAY                                 return TOK_ARRAY;
   OF                                    return TOK_OF;
+  STRUCT                                return TOK_STRUCT;
+  END_STRUCT                            return TOK_END_STRUCT;
+  OVERLAP                               return TOK_OVERLAP;
   
   /* Identifier, taken from table 2 of
-     the standard */
+     the standard; had to be in the end
+     after we already lexed keywords */
   ({identifier}|{qualified_identifier}) {
                                           // TODO
                                           // We should check for types here!
@@ -287,6 +291,7 @@ dt_type_name          (L?DATE_AND_TIME|L?DT)
   "("                                   return '(';
   ")"                                   return ')';
   ","                                   return ',';
+  ";"                                   return ';';
   ":="                                  return TOK_SET;
   ".."                                  return TOK_DOTDOT;
 }
