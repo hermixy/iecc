@@ -118,6 +118,19 @@ dt                    ({dt_header}{date_literal}"-"{daytime})
 dt_header             ({dt_type_name}"#")
 dt_type_name          (L?DATE_AND_TIME|L?DT)
 
+
+
+
+
+
+/* Directly represented variables, taken from table 16 of the standard */
+direct_variable       ("%"[IQM]{direct_variable_size}?{direct_variable_addr})
+direct_variable_size  ([XBWDL])
+direct_variable_addr  ({unsigned_int}("."{unsigned_int})*)
+
+/* Register variables, an extension of ours! :) */
+register_variable     ("%"R{direct_variable}?{identifier})
+
 /* */
 %s COMMENT_SLASH
 %s COMMENT_PAREN
@@ -268,6 +281,19 @@ dt_type_name          (L?DATE_AND_TIME|L?DT)
   STRUCT                                return TOK_STRUCT;
   END_STRUCT                            return TOK_END_STRUCT;
   OVERLAP                               return TOK_OVERLAP;
+  
+  /* Directly represented variables,
+     taken from table 16 of the
+     standard, and register directs */
+  {direct_variable}                     {
+                                          // TODO
+                                          return TOK_DIRECT_VARIABLE;
+                                        };
+  
+  {register_variable}                   {
+                                          // TODO
+                                          return TOK_DIRECT_VARIABLE;
+                                        };
   
   /* Identifier, taken from table 2 of
      the standard; had to be in the end

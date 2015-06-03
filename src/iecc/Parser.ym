@@ -115,6 +115,9 @@
 %token TOK_END_STRUCT
 %token TOK_OVERLAP
 
+/* Table 16 */
+%token TOK_DIRECT_VARIABLE
+
 %%
 translation_unit: ;
 
@@ -389,6 +392,17 @@ string_set_value: /* empty */
                 | TOK_SET char_str;
 
 
+
+
+
+
+
+
+
+
+
+/* Directly represented variables, taken from table 16 of the standard */
+direct_variable: TOK_DIRECT_VARIABLE;
 
 
 
