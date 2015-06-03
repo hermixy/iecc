@@ -263,6 +263,8 @@ dt_type_name          (L?DATE_AND_TIME|L?DT)
      from table 10 of the standard */
   TYPE                                  return TOK_TYPE;
   END_TYPE                              return TOK_END_TYPE;
+  ARRAY                                 return TOK_ARRAY;
+  OF                                    return TOK_OF;
   
   /* Identifier, taken from table 2 of
      the standard */

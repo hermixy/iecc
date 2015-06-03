@@ -106,9 +106,11 @@
 %token TOK_CLASS_TYPENAME
 %token TOK_REF_TYPENAME
 %token TOK_INTERFACE_TYPENAME
+%token TOK_ENUM_LITERAL
 %token TOK_TYPE
 %token TOK_END_TYPE
-%token TOK_ENUM_LITERAL
+%token TOK_ARRAY
+%token TOK_OF
 
 %%
 translation_unit: ;
@@ -308,10 +310,34 @@ enum_value_spec_set_value: /* empty */
 enum_value: simple_identifier
           | TOK_ENUM_LITERAL;
 
+array_type_decl: simple_identifier ':' array_spec_init;
 
+array_spec_init: array_spec array_set_value;
 
+array_set_value: /* empty */
+               | TOK_SET array_init;
 
+array_spec: array_type_access
+          | TOK_ARRAY '[' subrange_list ']' TOK_OF data_type_access;
 
+subrange_list: subrange
+             | subrange_list ',' subrange;
+
+array_init: '[' array_elem_init_list ']';
+
+array_elem_init_list: array_elem_init
+                    | array_elem_init_list ',' array_elem_init;
+
+array_elem_init: array_elem_init_value
+               | TOK_UNSIGNED_INT_LITERAL '(' array_elem_init_value_opt ')';
+
+array_elem_init_value: constant_expr
+                     | enum_value
+                     | struct_init
+                     | array_init;
+
+array_elem_init_value_opt: /* empty */
+                         | array_elem_init_value;
 
 
 
