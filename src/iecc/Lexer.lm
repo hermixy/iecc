@@ -61,7 +61,6 @@ gibberish             [A-Z0-9_][A-Z0-9_#]*
 
 /* Identifier, taken from table 2 of the standard */
 identifier            (_?{letter}(_?({letter}|{digit}))*)
-qualified_identifier  ({identifier}("."{identifier})*)
 
 /* Numeric literal, taken from table 5 of the standard */
 int_literal           ({int_header}?{any_int})
@@ -127,9 +126,10 @@ dt_type_name          (L?DATE_AND_TIME|L?DT)
 direct_variable       ("%"[IQM]{direct_variable_size}?{direct_variable_addr})
 direct_variable_size  ([XBWDL])
 direct_variable_addr  ({unsigned_int}("."{unsigned_int})*)
+direct_variable_part  ("%"[IQM]"*")
 
-/* Register variables, an extension of ours! :) */
-register_variable     ("%"R{direct_variable}?{identifier})
+/* Register variables, a little extension of ours! :) */
+register_variable     ("%"R{direct_variable_size}?{identifier})
 
 /* */
 %s COMMENT_SLASH
@@ -227,9 +227,19 @@ register_variable     ("%"R{direct_variable}?{identifier})
   
   /* Character string literals, taken
      from table 6 of the standard */
+  {single_byte_char_str}                {
+                                          // TODO
+                                          return TOK_UNTYPED_CHAR_LITERAL_S;
+                                        };
+  
+  {double_byte_char_str}                {
+                                          // TODO
+                                          return TOK_UNTYPED_CHAR_LITERAL_D;
+                                        };
+  
   {char_literal}                        {
                                           // TODO
-                                          return TOK_CHAR_LITERAL;
+                                          return TOK_TYPED_CHAR_LITERAL;
                                         };
   
   /* Duration, date and time of day
@@ -282,9 +292,38 @@ register_variable     ("%"R{direct_variable}?{identifier})
   END_STRUCT                            return TOK_END_STRUCT;
   OVERLAP                               return TOK_OVERLAP;
   
+  /* References, taken from table 12 of
+     the standard */
+  REF_TO                                return TOK_REF_TO;
+  REF                                   return TOK_REF;
+  NULL                                  return TOK_NULL;
+  
+  /* Variables, taken from tables 13
+     and 14 of the standard */
+  THIS                                  return TOK_THIS;
+  VAR                                   return TOK_VAR;
+  VAR_INPUT                             return TOK_VAR_INPUT;
+  VAR_OUTPUT                            return TOK_VAR_OUTPUT;
+  VAR_IN_OUT                            return TOK_VAR_IN_OUT;
+  VAR_TEMP                              return TOK_VAR_TEMP;
+  VAR_EXTERNAL                          return TOK_VAR_EXTERNAL;
+  VAR_GLOBAL                            return TOK_VAR_GLOBAL;
+  RETAIN                                return TOK_RETAIN;
+  NON_RETAIN                            return TOK_NON_RETAIN;
+  END_VAR                               return TOK_END_VAR;
+  R_EDGE                                return TOK_R_EDGE;
+  F_EDGE                                return TOK_F_EDGE;
+  CONSTANT                              return TOK_CONSTANT;
+  AT                                    return TOK_AT;
+  
   /* Directly represented variables,
      taken from table 16 of the
      standard, and register directs */
+  {direct_variable_part}                {
+                                          // TODO
+                                          return TOK_DIRECT_VARIABLE_PART;
+                                        };
+  
   {direct_variable}                     {
                                           // TODO
                                           return TOK_DIRECT_VARIABLE;
@@ -298,7 +337,7 @@ register_variable     ("%"R{direct_variable}?{identifier})
   /* Identifier, taken from table 2 of
      the standard; had to be in the end
      after we already lexed keywords */
-  ({identifier}|{qualified_identifier}) {
+  {identifier}                          {
                                           // TODO
                                           // We should check for types here!
                                           return TOK_IDENTIFIER;
@@ -317,7 +356,9 @@ register_variable     ("%"R{direct_variable}?{identifier})
   "("                                   return '(';
   ")"                                   return ')';
   ","                                   return ',';
+  "^"                                   return '^';
   ";"                                   return ';';
+  "*"                                   return '*';
   ":="                                  return TOK_SET;
   ".."                                  return TOK_DOTDOT;
 }

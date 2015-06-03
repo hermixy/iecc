@@ -4,7 +4,8 @@
 * License: GNU GPLv3+.                                                         *
 *                                                                              *
 * Language: Bison -> (Modern) Objective-C.                                     *
-* Description: Compiler parser file.                                           *
+* Description: Compiler parser file. It handles the grammar of the common base *
+*   and of all the programming languages supported.                            *
 ********************************************************************************
 * Copyright (C) 2015 - Paulo H. Torrens. All rights reserved.                  *
 *                                                                              *
@@ -21,6 +22,21 @@
 * You should have received a copy of the GNU General Public License along with *
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
+/*
+  RATIONALE:
+  
+  I've tried to keep note of every part of the standard where I find each piece,
+  so anyone can easely look into it if necessary, but (please don't get mad, IEC
+  guys) it's quite hard and it's a bit messy. This parser makes a lot of typing
+  dependent lookups, which means we have to keep giving back information to the
+  lexer all the time (e.g., as soon as a type or a variable is about to be
+  defined), the good ol' "The Lexer Hack". So you will need to carefully need
+  study the lexer too to understand this. If you have a copy of the standard
+  you'll notice that I had to change a lot of tokens to get the correct
+  behaviour without any ambiguities.
+  
+  So, if you find the grammar confusing, don't blame me! :(
+*/
 %{
   //
   #import <stdlib.h>
@@ -62,7 +78,9 @@
 %token TOK_BOOL_LITERAL
 
 /* Table 6 */
-%token TOK_CHAR_LITERAL
+%token TOK_TYPED_CHAR_LITERAL
+%token TOK_UNTYPED_CHAR_LITERAL_S
+%token TOK_UNTYPED_CHAR_LITERAL_D
 
 /* Tables 8 and 9 */
 %token TOK_TIME_LITERAL;
@@ -115,9 +133,33 @@
 %token TOK_END_STRUCT
 %token TOK_OVERLAP
 
+/* Table 12 */
+%token TOK_REF_TO
+%token TOK_REF
+%token TOK_NULL
+
+/* Tables 13 and 14 */
+%token TOK_THIS
+%token TOK_VAR
+%token TOK_VAR_INPUT
+%token TOK_VAR_OUTPUT
+%token TOK_VAR_IN_OUT
+%token TOK_VAR_TEMP
+%token TOK_VAR_EXTERNAL
+%token TOK_VAR_GLOBAL
+%token TOK_RETAIN
+%token TOK_NON_RETAIN
+%token TOK_END_VAR
+%token TOK_R_EDGE
+%token TOK_F_EDGE
+%token TOK_CONSTANT
+%token TOK_AT
+
 /* Table 16 */
 %token TOK_DIRECT_VARIABLE
+%token TOK_DIRECT_VARIABLE_PART;
 
+/******************************************************************************/
 %%
 translation_unit: ;
 
@@ -134,8 +176,10 @@ simple_identifier: TOK_IDENTIFIER
                  | TOK_REF_TYPENAME
                  | TOK_INTERFACE_TYPENAME;
 
-qualified_identifier: simple_identifier
-                    | TOK_QUALIFIED_IDENTIFIER;
+qualified_identifier: path simple_identifier;
+
+path: /* empty */
+    | path simple_identifier '.';
 
 /* Numeric literals, taken from table 5 of the standard */
 constant: numeric_literal
@@ -158,7 +202,15 @@ bit_str_literal: TOK_BIT_STR_LITERAL;
 bool_literal: TOK_BOOL_LITERAL;
 
 /* Character string literals, taken from table 6 of the standard */
-char_literal: TOK_CHAR_LITERAL;
+char_literal: char_str
+            | TOK_TYPED_CHAR_LITERAL;
+
+s_byte_char_str: TOK_UNTYPED_CHAR_LITERAL_S;
+
+d_byte_char_str: TOK_UNTYPED_CHAR_LITERAL_D;
+
+char_str: s_byte_char_str
+        | d_byte_char_str;
 
 /* Duration, data and time of day literals, taken from tables 8 and 9 of... */
 time_literal: TOK_TIME_LITERAL;
@@ -391,6 +443,293 @@ str_type_decl: simple_identifier ':' string_type_name string_set_value;
 string_set_value: /* empty */
                 | TOK_SET char_str;
 
+/* References, taken from table 12 of the standard */
+ref_type_decl: simple_identifier ':' ref_spec_init;
+
+ref_spec_init: ref_spec ref_set_value;
+
+ref_set_value: /* empty */
+             | TOK_SET ref_value;
+
+ref_spec: ref_to_list data_type_access;
+
+ref_to_list: TOK_REF_TO
+           | ref_to_list TOK_REF_TO;
+
+ref_value: ref_addr
+         | TOK_NULL;
+
+ref_addr: TOK_REF '(' ref_addr2 ')';
+
+ref_addr2: symbolic_variable
+         | fb_instance_name
+         | class_instance_name;
+
+/* oh God... :( */
+
+ref_assign: simple_identifier TOK_SET simple_identifier
+          | simple_identifier TOK_SET ref_deref
+          | ref_value;
+
+ref_deref: simple_identifier carret_list;
+
+carret_list: '^'
+           | carret_list '^';
+
+carret_list_opt: /* empty */
+               | carret_list;
+
+/* Declaration and initialization of variables, taken from tables 13 and 14 */
+variable: direct_variable
+        | symbolic_variable;
+
+symbolic_variable: symbolic_variable_path symbolic_variable_access;
+
+symbolic_variable_access: var_access
+                        | multi_elem_var;
+
+symbolic_variable_path: /* empty */
+                      | TOK_THIS '.'
+                      | path;
+
+var_access: simple_identifier /* oh God... :( */
+          | ref_deref;
+
+multi_elem_var: var_access multi_elem_var2_list;
+
+multi_elem_var2_list: multi_elem_var2
+                    | multi_elem_var2_list multi_elem_var2;
+
+multi_elem_var2: subscript_list
+               | struct_variable;
+
+subscript_list: '[' subscript_list2 ']';
+
+subscript_list2: subscript
+               | subscript_list2 ',' subscript;
+
+subscript: expression;
+
+struct_variable: '.' struct_elem_select;
+
+struct_elem_select: var_access; /* WHY, IEC, WHY?!?! */
+
+input_decls: TOK_VAR_INPUT retain_non_retain_opt input_decl_list TOK_END_VAR;
+
+retain_non_retain: TOK_RETAIN
+                 | TOK_NON_RETAIN;
+
+retain_non_retain_opt: /* empty */
+                     | retain_non_retain;
+
+input_decl_list: /* empty */
+               | input_decl_list input_decl ';';
+
+input_decl: var_decl_init
+          | edge_decl
+          | array_conform_decl;
+
+edge_decl: variable_list ':' TOK_BOOL TOK_R_EDGE
+         | variable_list ':' TOK_BOOL TOK_F_EDGE;
+         
+variable_list: variable_name
+             | variable_list ',' variable_name;
+
+variable_name: simple_identifier;
+
+var_decl_init: variable_list ':' var_decl_init2
+             | array_var_decl_init
+             | struct_var_decl_init
+             | fb_decl_init
+             | interface_spec_init;
+
+var_decl_init2: simple_spec_init
+              | str_var_decl
+              | ref_spec_init;
+
+ref_var_decl: variable_list ':' ref_spec;
+
+interface_var_decl: variable_list ':' interface_type_access;
+
+array_var_decl_init: variable_list ':' array_spec_init;
+
+array_conformand: TOK_ARRAY '[' star_list ']' TOK_OF data_type_access;
+
+star_list: '*'
+         | star_list ',' '*';
+
+star_list_opt: /* empty */
+             | star_list;
+
+array_conform_decl: variable_list ':' array_conformand;
+
+struct_var_decl_init: variable_list ':' struct_spec_init;
+
+fb_decl_no_init: fb_name_list ':' fb_type_access;
+
+fb_name_list: simple_identifier
+            | fb_name_list ',' simple_identifier;
+
+fb_decl_init: fb_decl_no_init fb_decl_set_value;
+
+fb_decl_set_value: /* empty */
+                 | TOK_SET struct_init;
+
+fb_instance_name: path fb_name carret_list_opt;
+
+fb_name: simple_identifier;
+
+output_decls: TOK_VAR_OUTPUT retain_non_retain_opt output_decl_list TOK_END_VAR;
+
+output_decl_list: /* empty */
+                | output_decl_list output_decl ';';
+
+output_decl: var_decl_init
+           | array_conform_decl;
+
+in_out_decls: TOK_VAR_IN_OUT in_out_var_decl_list TOK_END_VAR;
+
+in_out_var_decl_list: /* empty */
+                    | in_out_var_decl_list in_out_var_decl ';';
+
+in_out_var_decl: var_decl
+               | array_conform_decl
+               | fb_decl_no_init;
+
+var_decl: variable_list ':' var_decl2;
+
+var_decl2: simple_spec
+         | str_var_decl
+         | array_var_decl
+         | struct_var_decl;
+
+array_var_decl: variable_list ':' array_spec;
+
+struct_var_decl: variable_list ':' struct_type_access;
+
+var_decls: TOK_VAR constant_opt access_spec_opt var_decl_init_list TOK_END_VAR;
+
+constant_opt: /* empty */
+            | TOK_CONSTANT;
+
+access_spec_opt: /* empty */
+               | access_spec;
+
+var_decl_init_list: /* empty */
+                  | var_decl_init_list var_decl_init ';';
+
+retain_var_decls: TOK_VAR TOK_RETAIN access_spec_opt var_decl_init_list
+                  TOK_END_VAR;
+
+loc_var_decls: TOK_VAR constant_retain_non_retain_opt loc_var_decl_list
+               TOK_END_VAR;
+
+constant_retain_non_retain_opt: TOK_CONSTANT
+                              | retain_non_retain_opt;
+
+loc_var_decl_list: /* empty */
+                 | loc_var_decl_list loc_var_decl ';';
+
+loc_var_decl: variable_name_opt located_at ':' loc_var_spec_init;
+
+variable_name_opt: /* empty */
+                 | variable_name;
+
+temp_var_decls: TOK_VAR_TEMP temp_var_decls2_list TOK_END_VAR;
+
+temp_var_decls2_list: /* empty */
+                    | temp_var_decls2_list temp_var_decls2 ';';
+
+temp_var_decls2: var_decl
+               | ref_var_decl
+               | interface_var_decl;
+
+external_var_decls: TOK_VAR_EXTERNAL constant_opt external_decl_list
+                    TOK_END_VAR;
+
+external_decl_list: /* empty */
+                  | external_decl_list external_decl ';';
+
+external_decl: global_var_name ':' external_decl2;
+
+external_decl2: simple_spec
+              | array_spec
+              | struct_type_access
+              | fb_type_access
+              | ref_type_access;
+
+global_var_name: simple_identifier;
+
+global_var_decls: TOK_VAR_GLOBAL constant_retain_opt global_var_decl_list
+                  TOK_END_VAR;
+
+constant_retain_opt: /* empty */
+                   | TOK_CONSTANT
+                   | TOK_RETAIN;
+
+global_var_decl_list: /* empty */
+                    | global_var_decl_list global_var_decl ';';
+
+global_var_decl: global_var_spec ':' global_var_decl2;
+
+global_var_decl2: loc_var_spec_init
+                | fb_type_access;
+
+global_var_spec: global_var_spec2
+               | global_var_spec3;
+
+global_var_spec2: global_var_name_list;
+
+global_var_name_list: global_var_name
+                    | global_var_name_list ',' global_var_name;
+
+global_var_spec3: global_var_name located_at;
+
+loc_var_spec_init: simple_spec_init
+                 | array_spec_init
+                 | struct_spec_init
+                 | s_byte_str_spec
+                 | d_byte_str_spec;
+
+located_at: TOK_AT direct_variable;
+
+str_var_decl: s_byte_str_var_decl
+            | d_byte_str_var_decl;
+
+s_byte_str_var_decl: variable_list ':' s_byte_str_spec;
+
+s_byte_str_spec: TOK_STRING string_size s_byte_str_set_value;
+
+s_byte_str_set_value: /* empty */
+                    | TOK_SET s_byte_char_str;
+
+d_byte_str_var_decl: variable_list ':' d_byte_str_spec;
+
+d_byte_str_spec: TOK_WSTRING string_size d_byte_str_set_value;
+
+d_byte_str_set_value: /* empty */
+                    | TOK_SET d_byte_char_str;
+
+loc_partly_var_decl: TOK_VAR retain_non_retain_opt loc_partly_var_list
+
+loc_partly_var_list: /* empty */
+                   | loc_partly_var_list loc_partly_var;
+
+loc_partly_var: variable_name TOK_AT TOK_DIRECT_VARIABLE_PART ':' var_spec ';';
+
+var_spec: simple_spec
+        | array_spec
+        | struct_type_access
+        | var_spec_str_spec;
+
+var_spec_str_spec: TOK_STRING string_size
+                 | TOK_WSTRING string_size;
+
+
+
+
+
+
 
 
 
@@ -402,7 +741,8 @@ string_set_value: /* empty */
 
 
 /* Directly represented variables, taken from table 16 of the standard */
-direct_variable: TOK_DIRECT_VARIABLE;
+direct_variable: TOK_DIRECT_VARIABLE
+               | TOK_DIRECT_VARIABLE_PART;
 
 
 
@@ -410,7 +750,6 @@ direct_variable: TOK_DIRECT_VARIABLE;
 
 
 
-constant_expr:;
 
 %%
 
