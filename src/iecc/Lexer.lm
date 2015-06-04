@@ -188,7 +188,7 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
   
   {int_literal}                         {
                                           // TODO
-                                          return TOK_GENERIC_LITERAL;
+                                          return TOK_GENERIC_INT_LITERAL;
                                         };
   
   {int_literal}{gibberish}              {
@@ -364,8 +364,8 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
      standard */
   CLASS                                 return TOK_CLASS;
   END_CLASS                             return TOK_END_CLASS;
-  INTERFACE                             return INTERFACE;
-  END_INTERFACE                         return END_INTERFACE;
+  INTERFACE                             return TOK_INTERFACE;
+  END_INTERFACE                         return TOK_END_INTERFACE;
   PUBLIC                                return TOK_PUBLIC;
   PROTECTED                             return TOK_PROTECTED;
   PRIVATE                               return TOK_PRIVATE;
@@ -386,6 +386,11 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
   PRIORITY                              return TOK_PRIORITY;
   WITH                                  return TOK_WITH;
   VAR_CONFIG                            return TOK_VAR_CONFIG;
+  
+  /* Table 64 of the standard */
+  NAMESPACE                             return TOK_NAMESPACE;
+  END_NAMESPACE                         return TOK_END_NAMESPACE;
+  USING                                 return TOK_USING;
   
   /* Placeholders! TODO! TODO! TODO! */
   aaaaa                                 return TOK_LANG_LD;

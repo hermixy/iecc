@@ -206,6 +206,11 @@
 %token TOK_WITH
 %token TOK_VAR_CONFIG
 
+/* Table 64 */
+%token TOK_NAMESPACE
+%token TOK_END_NAMESPACE
+%token TOK_USING
+
 /* Placeholders! TODO! */
 %token TOK_LANG_LD
 %token TOK_LANG_FB
@@ -487,6 +492,8 @@ struct_elem_decl3: simple_spec_init
                  | enum_spec_init
                  | array_spec_init
                  | struct_spec_init;
+
+struct_elem_name: simple_identifier;
 
 struct_init: '(' struct_elem_init_list ')';
 
@@ -947,13 +954,13 @@ prog_access_decl_list: /* empty */
                      | prog_access_decl_list prog_access_decl;
 
 prog_access_decl: access_name ':' symbolic_variable multibit_part_access_opt ':'
-                  data_type_access acess_direction_opt;
+                  data_type_access access_direction_opt;
 
 multibit_part_access_opt: /* empty */
                         | multibit_part_access;
 
-acess_direction_opt: /* empty */
-                   | acess_direction;
+access_direction_opt: /* empty */
+                    | access_direction;
 
 /* Classes and method calls, taken tables 48 and 50 of the standard */
 class_decl: TOK_CLASS final_abstract_opt class_type_name using_directive_list
@@ -1093,7 +1100,7 @@ access_name: simple_identifier;
 
 prog_output_access: prog_name '.' symbolic_variable;
 
-prog_name: simple_variable;
+prog_name: simple_identifier;
 
 access_direction: TOK_READ_WRITE
                 | TOK_READ_ONLY;
@@ -1110,7 +1117,7 @@ task_init_simple: /* empty */
 task_init_interval: /* empty */
                   | TOK_INTERVAL TOK_SET data_source ',';
 
-task_init_priority: TOK_PRIORITY TOK_SET unsigned_int;
+task_init_priority: TOK_PRIORITY TOK_SET TOK_UNSIGNED_INT_LITERAL;
 
 data_source: constant
            | global_var_access
@@ -1134,8 +1141,8 @@ prog_conf_elem: fb_task
 
 fb_task: fb_instance_name TOK_WITH task_name;
 
-progn_cnxn: symbolic_variable TOK_SET prog_data_source
-          | symbolic_variable TOK_FAT_ARROW data_sink;
+prog_cnxn: symbolic_variable TOK_SET prog_data_source
+         | symbolic_variable TOK_FAT_ARROW data_sink;
 
 prog_data_source: constant
                 | enum_value
@@ -1154,7 +1161,7 @@ config_inst_init: resource_name '.' prog_name '.' config_inst_init2_list
                   config_inst_init3;
 
 config_inst_init2_list: /* empty */
-                      | config_inst_init2_lsit config_inst_init2 '.';
+                      | config_inst_init2_list config_inst_init2 '.';
 
 config_inst_init2: fb_instance_name
                  | class_instance_name;
@@ -1168,8 +1175,47 @@ config_inst_init4: fb_instance_name ':' fb_type_access
 located_at_opt: /* empty */
               | located_at;
 
+/* Namespaces, taken from table 64 of the standard, finally! */
 
+namespace_decl: TOK_NAMESPACE internal_opt namespace_h_name using_directive_list
+                namespace_elements TOK_END_NAMESPACE;
 
+internal_opt: /* empty */
+            | TOK_INTERNAL;
+
+namespace_elements: namespace_element
+                  | namespace_elements namespace_element;
+
+namespace_element: data_type_decl
+                 | func_decl
+                 | fb_decl
+                 | class_decl
+                 | interface_decl
+                 | namespace_decl;
+
+namespace_h_name: namespace_name
+                | namespace_h_name '.' namespace_name;
+
+namespace_name: simple_identifier;
+
+using_directive: TOK_USING namespace_h_name_list ';';
+
+namespace_h_name_list: namespace_h_name
+                     | namespace_h_name_list ',' namespace_h_name;
+
+POU_decl: using_directive_list POU_decl2_list;
+
+POU_decl2_list: POU_decl2
+              | POU_decl2_list POU_decl2;
+
+POU_decl2: global_var_decls
+         | data_type_decl
+         | access_decls
+         | func_decl
+         | fb_decl
+         | class_decl
+         | interface_decl
+         | namespace_decl;
 
 
 
@@ -1202,6 +1248,10 @@ instruction_list: TOK_LANG_IL;
 stmt_list: TOK_LANG_ST;
 sfc: TOK_LANG_SFC;
 other_languages: TOK_LANG_C;
+
+constant_expr: TOK_TODO;
+expression: TOK_TODO;
+multibit_part_access: TOK_TODO;
 
 %%
 
