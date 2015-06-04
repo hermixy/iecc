@@ -353,6 +353,16 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
   END_METHOD                            return TOK_END_METHOD;
   OVERRIDE                              return TOK_OVERRIDE;
   
+  /* Classes and method calls, taken tables 48 and 50 of the standard */
+  CLASS                                 return TOK_CLASS;
+  END_CLASS                             return TOK_END_CLASS;
+  INTERFACE                             return INTERFACE;
+  END_INTERFACE                         return END_INTERFACE;
+  PUBLIC                                return TOK_PUBLIC;
+  PROTECTED                             return TOK_PROTECTED;
+  PRIVATE                               return TOK_PRIVATE;
+  INTERNAL                              return TOK_INTERNAL;
+  
   /* Placeholders! TODO! TODO! TODO! */
   aaaaa                                 return TOK_LANG_LD;
   bbbbb                                 return TOK_LANG_FB;

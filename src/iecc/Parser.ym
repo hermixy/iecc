@@ -27,13 +27,13 @@
   
   I've tried to keep note of every part of the standard where I find each piece,
   so anyone can easely look into it if necessary, but (please don't get mad, IEC
-  guys) it's quite hard and it's a bit messy. This parser makes a lot of typing
+  guys) it's quite hard and it's a bit messy. This parser makes a lot of type
   dependent lookups, which means we have to keep giving back information to the
   lexer all the time (e.g., as soon as a type or a variable is about to be
   defined), the good ol' "The Lexer Hack". So you will need to carefully need
   study the lexer too to understand this. If you have a copy of the standard
   you'll notice that I had to change a lot of tokens to get the correct
-  behaviour without any ambiguities.
+  behaviour without any ambiguities, typechecking it during parsing.
   
   So, if you find the grammar confusing, don't blame me! :(
 */
@@ -175,6 +175,16 @@
 %token TOK_END_METHOD
 %token TOK_OVERRIDE
 
+/* Tables 48 and 50 */
+%token TOK_CLASS
+%token TOK_END_CLASS
+%token TOK_INTERFACE
+%token TOK_END_INTERFACE
+%token TOK_PUBLIC
+%token TOK_PROTECTED
+%token TOK_PRIVATE
+%token TOK_INTERNAL
+
 /* Placeholders! TODO! */
 %token TOK_LANG_LD
 %token TOK_LANG_FB
@@ -185,7 +195,10 @@
 
 /******************************************************************************/
 %%
-translation_unit: ;
+/*
+
+*/
+translation_unit: POU_decl;
 
 /* Identifier, taken from table 2 of the standard */
 simple_identifier: TOK_IDENTIFIER
@@ -883,6 +896,91 @@ method_decl_decl_list: /* empty */
 method_decl_decl: io_var_decls
                 | func_var_decls
                 | temp_var_decls;
+
+/* Classes and method calls, taken tables 48 and 50 of the standard */
+class_decl: TOK_CLASS final_abstract_opt class_type_name using_directive_list
+            class_decl_extends fb_decl_implements class_decl_decl_list
+            method_decl_list TOK_END_CLASS;
+
+class_type_name: simple_identifier;
+
+class_decl_extends: /* empty */
+                  | TOK_EXTENDS class_type_access;
+
+class_decl_decl_list: /* empty */
+                    | class_decl_decl_list class_decl_decl;
+
+class_decl_decl: func_var_decls
+               | other_var_decls;
+
+class_type_name: simple_identifier;
+
+class_type_access: path class_type_name;
+
+class_name: simple_identifier;
+
+class_instance_name: path class_name carret_list_opt;
+
+interface_decl: TOK_INTERFACE interface_type_name using_directive_list
+                interface_decl_extends method_prototype_list TOK_END_INTERFACE;
+
+interface_decl_extends: /* empty */
+                      | interface_name_list;
+
+method_prototype_list: /* empty */
+                     | method_prototype_list method_prototype;
+
+method_prototype: TOK_METHOD method_name method_prototype_access
+                  io_var_decls_list TOK_END_METHOD;
+
+method_prototype_access: /* empty */
+                       | ':' data_type_access;
+
+io_var_decls_list: /* empty */
+                 | io_var_decls_list io_var_decls;
+
+interface_spec_init: variable_list interface_set_value;
+
+interface_set_value: /* empty */
+                   | TOK_SET interface_value;
+
+interface_value: symbolic_variable
+               | fb_instance_name
+               | class_instance_name
+               | TOK_NULL;
+
+interface_name_list: interface_type_access
+                   | interface_name_list ',' interface_type_access;
+
+interface_type_name: simple_identifier;
+
+interface_type_access: path interface_type_name;
+
+interface_name: simple_identifier;
+
+access_spec: TOK_PUBLIC
+           | TOK_PROTECTED
+           | TOK_PRIVATE
+           | TOK_INTERNAL;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
