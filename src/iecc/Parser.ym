@@ -47,7 +47,7 @@
   
   //
   void yyerror(char const *str) {
-    /* TODO */
+    printf("parsing error!!!\n%s\n", str);
   };
 %}
 
@@ -67,9 +67,6 @@
 /* Table 2 */
 %token TOK_IDENTIFIER "unbound identifier"
 %token TOK_QUALIFIED_IDENTIFIER
-
-/* Table 4 */
-%token TOK_PRAGMA
 
 /* Table 5 */
 %token TOK_SIGNED_INT_LITERAL
@@ -1260,6 +1257,12 @@ multibit_part_access: TOK_TODO;
  * tokens were found. :)
  */
 int main() {
+  
+  if(1) {
+    yyparse();
+    return EXIT_SUCCESS;
+  };
+  
   int x;
   extern int yyleng;
   extern int yylineno;
@@ -1270,7 +1273,7 @@ int main() {
     x = yylex();
     printf("%d:%02d-%02d:", yylineno, yycolumn, yycolumn + x ? yyleng : 0);
     if(x >= 0x80) {
-      printf("%-20s %s", yytname[x - 255], yytext);
+      printf("%-26s %s", yytname[x - 255], yytext);
     } else {
       if(x) {
         printf("'%c'", x);
