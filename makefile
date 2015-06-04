@@ -55,7 +55,7 @@ $(DIR_IECC)/%.out.tmp: $(DIR_IECC)/%.lm
 
 $(DIR_IECC)/%.out.tmp $(DIR_IECC)/%.tmp.h: $(DIR_IECC)/%.ym
 	@echo Building and compiling $*.ym...
-	@$(YACC) -o $(DIR_IECC)/$*.out.tmp --defines=$(DIR_IECC)/$*.tmp.h $<
+	@$(YACC) --report=states --report-file=$(DIR_IECC)/$*.states.tmp -o $(DIR_IECC)/$*.out.tmp --defines=$(DIR_IECC)/$*.tmp.h $<
 
 $(DIR_IECC)/%.out.o: $(DIR_IECC)/%.out.tmp
 	@$(OBJC) -I$(INC_IECC) $(FLAGS) -fPIC -xobjective-c \

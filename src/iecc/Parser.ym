@@ -41,6 +41,7 @@
   //
   #import <stdlib.h>
   #import <stdio.h>
+  #define YYDEBUG 1
   
   //
   extern int yylex(void);
@@ -51,7 +52,9 @@
   };
 %}
 
+%debug
 %locations
+%glr-parser
 %token-table
 %error-verbose
 
@@ -227,17 +230,7 @@
 translation_unit: POU_decl;
 
 /* Identifier, taken from table 2 of the standard */
-simple_identifier: TOK_IDENTIFIER
-                 /* Taken from table 10 */
-                 | TOK_SIMPLE_TYPENAME
-                 | TOK_SUBRANGE_TYPENAME
-                 | TOK_ENUM_TYPENAME
-                 | TOK_ARRAY_TYPENAME
-                 | TOK_STRUCT_TYPENAME
-                 | TOK_STRING_TYPENAME
-                 | TOK_CLASS_TYPENAME
-                 | TOK_REF_TYPENAME
-                 | TOK_INTERFACE_TYPENAME;
+simple_identifier: TOK_IDENTIFIER;
 
 qualified_identifier: path simple_identifier;
 
@@ -975,8 +968,6 @@ class_decl_decl_list: /* empty */
 class_decl_decl: func_var_decls
                | other_var_decls;
 
-class_type_name: simple_identifier;
-
 class_type_access: path class_type_name;
 
 class_name: simple_identifier;
@@ -1256,9 +1247,11 @@ multibit_part_access: TOK_TODO;
  * Temporary main function. Just lexes stdin and show which
  * tokens were found. :)
  */
-int main() {
+int main(int argc, char **argv) {
   
   if(1) {
+    yydebug = argv[1] && strcmp(argv[1], "debug") == 0;
+    
     yyparse();
     return EXIT_SUCCESS;
   };
