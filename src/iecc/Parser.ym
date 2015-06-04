@@ -175,6 +175,11 @@
 %token TOK_END_METHOD
 %token TOK_OVERRIDE
 
+/* Table 47 */
+%token TOK_PROGRAM
+%token TOK_END_PROGRAM
+%token TOK_VAR_ACCESS
+
 /* Tables 48 and 50 */
 %token TOK_CLASS
 %token TOK_END_CLASS
@@ -897,6 +902,38 @@ method_decl_decl: io_var_decls
                 | func_var_decls
                 | temp_var_decls;
 
+/* Program declaration, taken from table 47 of the standard */
+prog_decl: TOK_PROGRAM prog_type_name prog_decl_decl_list fb_body
+           TOK_END_PROGRAM;
+
+prog_decl_decl_list: /* empty */
+                   | prog_decl_decl_list prog_decl_decl;
+
+prog_decl_decl: io_var_decls
+              | func_var_decls
+              | temp_var_decls
+              | other_var_decls
+              | loc_var_decls
+              | prog_access_decls;
+
+prog_type_name: simple_identifier;
+
+prog_type_access: path prog_type_name;
+
+prog_access_decls: TOK_VAR_ACCESS prog_access_decl_list TOK_END_VAR;
+
+prog_access_decl_list: /* empty */
+                     | prog_access_decl_list prog_access_decl;
+
+prog_access_decl: access_name ':' symbolic_variable multibit_part_access_opt ':'
+                  data_type_access acess_direction_opt;
+
+multibit_part_access_opt: /* empty */
+                        | multibit_part_access;
+
+acess_direction_opt: /* empty */
+                   | acess_direction;
+
 /* Classes and method calls, taken tables 48 and 50 of the standard */
 class_decl: TOK_CLASS final_abstract_opt class_type_name using_directive_list
             class_decl_extends fb_decl_implements class_decl_decl_list
@@ -962,11 +999,6 @@ access_spec: TOK_PUBLIC
            | TOK_PROTECTED
            | TOK_PRIVATE
            | TOK_INTERNAL;
-
-
-
-
-
 
 
 

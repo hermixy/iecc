@@ -353,7 +353,15 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
   END_METHOD                            return TOK_END_METHOD;
   OVERRIDE                              return TOK_OVERRIDE;
   
-  /* Classes and method calls, taken tables 48 and 50 of the standard */
+  /* Program declaration, taken from
+     table 47 of the standard */
+  PROGRAM                               return TOK_PROGRAM;
+  END_PROGRAM                           return TOK_END_PROGRAM;
+  VAR_ACCESS                            return TOK_VAR_ACCESS;
+  
+  /* Classes and method calls, taken
+     tables 48 and 50 of the
+     standard */
   CLASS                                 return TOK_CLASS;
   END_CLASS                             return TOK_END_CLASS;
   INTERFACE                             return INTERFACE;
