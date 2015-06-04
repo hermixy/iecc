@@ -62,9 +62,10 @@
 /* Operators */
 %token TOK_SET
 %token TOK_DOTDOT
+%token TOK_FAT_ARROW
 
 /* Table 2 */
-%token TOK_IDENTIFIER
+%token TOK_IDENTIFIER "unbound identifier"
 %token TOK_QUALIFIED_IDENTIFIER
 
 /* Table 4 */
@@ -190,6 +191,21 @@
 %token TOK_PRIVATE
 %token TOK_INTERNAL
 
+/* Table 62 */
+%token TOK_CONFIGURATION
+%token TOK_END_CONFIGURATION
+%token TOK_RESOURCE
+%token TOK_END_RESOURCE
+%token TOK_ON
+%token TOK_READ_WRITE
+%token TOK_READ_ONLY
+%token TOK_TASK
+%token TOK_SINGLE
+%token TOK_INTERVAL
+%token TOK_PRIORITY
+%token TOK_WITH
+%token TOK_VAR_CONFIG
+
 /* Placeholders! TODO! */
 %token TOK_LANG_LD
 %token TOK_LANG_FB
@@ -198,8 +214,11 @@
 %token TOK_LANG_SFC
 %token TOK_LANG_C
 
-/******************************************************************************/
 %%
+/******************************************************************************/
+/* Base common language. All sublanguages (ST, IL, LD, etc) will be placed in */
+/* function bodies defined within this grammar.                               */
+/******************************************************************************/
 /*
 
 */
@@ -221,7 +240,9 @@ simple_identifier: TOK_IDENTIFIER
 qualified_identifier: path simple_identifier;
 
 path: /* empty */
-    | path simple_identifier '.';
+    | path namespace_name '.';
+
+namespace_name: simple_identifier;
 
 /* Numeric literals, taken from table 5 of the standard */
 constant: numeric_literal
@@ -1000,6 +1021,152 @@ access_spec: TOK_PUBLIC
            | TOK_PRIVATE
            | TOK_INTERNAL;
 
+/* Configuration and resources, taken from table 62 of the standard */
+config_name: simple_identifier;
+
+resource_type_name: simple_identifier;
+
+config_decl: TOK_CONFIGURATION config_name global_var_decls_opt
+             config_decl_resources access_decls_opt config_init_opt
+             TOK_END_CONFIGURATION;
+
+global_var_decls_opt: /* empty */
+                    | global_var_decls;
+
+config_decl_resources: single_resource_decl
+                     | resource_decl_list;
+
+resource_decl_list: resource_decl
+                  | resource_decl_list resource_decl;
+
+access_decls_opt: /* empty */
+                | access_decls;
+
+config_init_opt: /* empty */
+               | config_init;
+
+resource_decl: TOK_RESOURCE resource_name TOK_ON resource_type_name
+               global_var_decls_opt single_resource_decl TOK_END_RESOURCE;
+
+single_resource_decl: task_config_list prog_config_list;
+
+task_config_list: /* empty */
+                | task_config_list task_config ';';
+
+prog_config_list: prog_config
+                | prog_config_list prog_config ';';
+
+resource_name: simple_identifier;
+
+access_decls: TOK_VAR_ACCESS access_decl_list TOK_END_VAR;
+
+access_decl_list: /* empty */
+                | access_decl_list access_decl ';';
+
+access_decl: resource_name ':' access_path ':' data_type_access
+             access_direction_opt;
+
+access_direction_opt: /* empty */
+                    | access_direction;
+
+access_path: resource_path direct_variable
+           | resource_path access_path_prog access_path2_list symbolic_variable;
+
+resource_path: /* empty */
+             | resource_path resource_name '.';
+
+access_path_prog: /* empty */
+                | prog_name '.';
+
+access_path2_list: /* empty */
+                 | access_path2_list access_path2 '.';
+
+access_path2: fb_instance_name
+            | class_instance_name;
+
+global_var_access: resource_path global_var_name global_var_access_struct;
+
+global_var_access_struct: /* empty */
+                        | '.' struct_elem_name;
+
+access_name: simple_identifier;
+
+prog_output_access: prog_name '.' symbolic_variable;
+
+prog_name: simple_variable;
+
+access_direction: TOK_READ_WRITE
+                | TOK_READ_ONLY;
+
+task_config: TOK_TASK task_name task_init;
+
+task_name: simple_identifier;
+
+task_init: '(' task_init_simple task_init_interval task_init_priority ')';
+
+task_init_simple: /* empty */
+                | TOK_SINGLE TOK_SET data_source ',';
+
+task_init_interval: /* empty */
+                  | TOK_INTERVAL TOK_SET data_source ',';
+
+task_init_priority: TOK_PRIORITY TOK_SET unsigned_int;
+
+data_source: constant
+           | global_var_access
+           | prog_output_access
+           | direct_variable;
+
+prog_config: TOK_PROGRAM retain_non_retain_opt prog_name prog_config_with ':'
+             prog_type_access prog_config_elems_stuff;
+
+prog_config_with: /* empty */
+                | TOK_WITH task_name;
+
+prog_config_elems_stuff: /* EMPTY */
+                       | '(' prog_conf_elems ')';
+
+prog_conf_elems: prog_conf_elem
+               | prog_conf_elems ',' prog_conf_elem;
+
+prog_conf_elem: fb_task
+              | prog_cnxn;
+
+fb_task: fb_instance_name TOK_WITH task_name;
+
+progn_cnxn: symbolic_variable TOK_SET prog_data_source
+          | symbolic_variable TOK_FAT_ARROW data_sink;
+
+prog_data_source: constant
+                | enum_value
+                | global_var_access
+                | direct_variable;
+
+data_sink: global_var_access
+         | direct_variable;
+
+config_init: TOK_VAR_CONFIG config_inst_init_list TOK_END_VAR;
+
+config_inst_init_list: /* empty */
+                     | config_inst_init_list config_inst_init ';';
+
+config_inst_init: resource_name '.' prog_name '.' config_inst_init2_list
+                  config_inst_init3;
+
+config_inst_init2_list: /* empty */
+                      | config_inst_init2_lsit config_inst_init2 '.';
+
+config_inst_init2: fb_instance_name
+                 | class_instance_name;
+
+config_inst_init3: variable_name located_at_opt ':' loc_var_spec_init
+                 | config_inst_init4 TOK_SET struct_init;
+
+config_inst_init4: fb_instance_name ':' fb_type_access
+                 | class_instance_name ':' class_type_access;
+
+located_at_opt: /* empty */
+              | located_at;
 
 
 
@@ -1018,6 +1185,15 @@ access_spec: TOK_PUBLIC
 
 
 
+
+
+
+
+
+
+
+
+/******************************************************************************/
 
 /* Placeholders! TODO! */
 ladder_diagram: TOK_LANG_LD;

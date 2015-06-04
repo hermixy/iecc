@@ -371,6 +371,22 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
   PRIVATE                               return TOK_PRIVATE;
   INTERNAL                              return TOK_INTERNAL;
   
+  /* Configuration and resources, taken
+     from table 62 of the standard */
+  CONFIGURATION                         return TOK_CONFIGURATION;
+  END_CONFIGURATION                     return TOK_END_CONFIGURATION;
+  RESOURCE                              return TOK_RESOURCE;
+  END_RESOURCE                          return TOK_END_RESOURCE;
+  ON                                    return TOK_ON;
+  READ_WRITE                            return TOK_READ_WRITE;
+  READ_ONLY                             return TOK_READ_ONLY;
+  TASK                                  return TOK_TASK;
+  SINGLE                                return TOK_SINGLE;
+  INTERVAL                              return TOK_INTERVAL;
+  PRIORITY                              return TOK_PRIORITY;
+  WITH                                  return TOK_WITH;
+  VAR_CONFIG                            return TOK_VAR_CONFIG;
+  
   /* Placeholders! TODO! TODO! TODO! */
   aaaaa                                 return TOK_LANG_LD;
   bbbbb                                 return TOK_LANG_FB;
@@ -394,6 +410,9 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
                                           return TOK_INVALID;
                                         };
   
+  /* Cause why not? */
+  TODO                                  return TOK_TODO;
+  
   /* Operators and stuff */
   "["                                   return '[';
   "]"                                   return ']';
@@ -406,6 +425,7 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
   "*"                                   return '*';
   ":="                                  return TOK_SET;
   ".."                                  return TOK_DOTDOT;
+  "=>"                                  return TOK_FAT_ARROW;
 }
 
 .                                       {
