@@ -37,17 +37,28 @@
   
   So, if you find the grammar confusing, don't blame me! :(
 */
+%code requires {
+  #import <IECCBinder.h>
+  #define YY_DECL int yylex(IECCBinder *binder)
+  
+  //
+  extern YY_DECL;
+  
+  #if YYBISON
+    //
+    #define yylex() yylex(binder)
+  #endif
+}
+
 %{
   //
   #import <stdlib.h>
   #import <stdio.h>
+  #import <IECCBinder.h>
   #define YYDEBUG 1
   
   //
-  extern int yylex(void);
-  
-  //
-  void yyerror(char const *str) {
+  void yyerror(IECCBinder *binder, char const *str) {
     printf("parsing error!!!\n%s\n", str);
   };
 %}
@@ -57,6 +68,9 @@
 %glr-parser
 %token-table
 %error-verbose
+
+/* */
+%parse-param {IECCBinder *binder}
 
 /* Helper */
 %token TOK_TODO
@@ -366,8 +380,8 @@ interface_type_access: TOK_INTERFACE_TYPENAME;
 
 data_type_decl: TOK_TYPE type_decl_list TOK_END_TYPE;
 
-type_decl_list: type_decl ";"
-              | type_decl_list type_decl ";";
+type_decl_list: type_decl ';'
+              | type_decl_list type_decl ';';
 
 type_decl: simple_type_decl
          | subrange_type_decl
@@ -377,7 +391,9 @@ type_decl: simple_type_decl
          | str_type_decl
          | ref_type_decl;
 
-simple_type_decl: simple_identifier ':' simple_spec_init;
+simple_type_decl: simple_identifier ':' simple_spec_init {
+                  printf("Defined a simple type.\n");
+                };
 
 simple_spec_init: simple_spec simple_set_value;
 
@@ -1249,14 +1265,17 @@ multibit_part_access: TOK_TODO;
  */
 int main(int argc, char **argv) {
   
-  if(1) {
-    yydebug = argv[1] && strcmp(argv[1], "debug") == 0;
-    
-    yyparse();
-    return EXIT_SUCCESS;
-  };
+  yydebug = argv[1] && strcmp(argv[1], "debug") == 0;
   
-  int x;
+  IECCBinder *binder = IECCBinder.new;
+  
+  yyparse(binder);
+  
+  (void)binder.release;
+  
+  return EXIT_SUCCESS;
+  
+  /*int x;
   extern int yyleng;
   extern int yylineno;
   extern int yycolumn;
@@ -1275,7 +1294,7 @@ int main(int argc, char **argv) {
       };
     };
     printf("\n");
-  } while(x);
+  } while(x);*/
   
   return EXIT_SUCCESS;
 };

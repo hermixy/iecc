@@ -23,6 +23,8 @@
 *******************************************************************************/
 /* Small header */
 %{
+  #import "IECCBinder.h"
+  
   // Header made by Bison:
   #import "./Parser.tmp.h"
   
@@ -399,6 +401,9 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
   eeeee                                 return TOK_LANG_SFC;
   fffff                                 return TOK_LANG_C;
   
+  /* Cause why not? */
+  TODO                                  return TOK_TODO;
+  
   /* Identifier, taken from table 2 of
      the standard; had to be in the end
      after we already lexed keywords */
@@ -413,9 +418,6 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
                                           // We could be TOK_ENUM_LITERAL here!
                                           return TOK_INVALID;
                                         };
-  
-  /* Cause why not? */
-  TODO                                  return TOK_TODO;
   
   /* Operators and stuff */
   "["                                   return '[';
