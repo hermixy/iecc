@@ -25,57 +25,54 @@
 #import <Foundation/Foundation.h>
 #import "IECCResource.h"
 
-//
-#ifndef __IECC_DATA_TYPE_H__
-  #define __IECC_DATA_TYPE_H__
-  /**
-  * This object represents a data type on any of the programming languages.
-  * 
-  * This class is abstract and should not be created by itself.
-  */
-  @interface IECCDataType: NSObject
-    
-  @end
+/**
+* This object represents a data type on any of the programming languages.
+* 
+* This class is abstract and should not be created by itself.
+*/
+@interface IECCDataType: NSObject
   
-  #include "types/IECCAny.h"
-  #include "types/IECCAnyBit.h"
-  #include "types/IECCAnyChar.h"
-  #include "types/IECCAnyChars.h"
-  #include "types/IECCAnyDate.h"
-  #include "types/IECCAnyDerived.h"
-  #include "types/IECCAnyDuration.h"
-  #include "types/IECCAnyElementary.h"
-  #include "types/IECCAnyInt.h"
-  #include "types/IECCAnyMagnitude.h"
-  #include "types/IECCAnyNum.h"
-  #include "types/IECCAnyReal.h"
-  #include "types/IECCAnySigned.h"
-  #include "types/IECCAnyString.h"
-  #include "types/IECCAnyUnsigned.h"
-  #import "types/IECCBool.h"
-  #import "types/IECCByte.h"
-  #import "types/IECCChar.h"
-  #import "types/IECCDateAndTime.h"
-  #import "types/IECCDate.h"
-  #import "types/IECCDInt.h"
-  #import "types/IECCDWord.h"
-  #import "types/IECCInt.h"
-  #import "types/IECCLDateAndTime.h"
-  #import "types/IECCLInt.h"
-  #import "types/IECCLReal.h"
-  #import "types/IECCLTime.h"
-  #import "types/IECCLTimeOfDay.h"
-  #import "types/IECCLWord.h"
-  #import "types/IECCReal.h"
-  #import "types/IECCSInt.h"
-  #import "types/IECCString.h"
-  #import "types/IECCTime.h"
-  #import "types/IECCTimeOfDay.h"
-  #import "types/IECCUDInt.h"
-  #import "types/IECCUInt.h"
-  #import "types/IECCULInt.h"
-  #import "types/IECCUSInt.h"
-  #import "types/IECCWChar.h"
-  #import "types/IECCWord.h"
-  #import "types/IECCWString.h"
-#endif
+@end
+
+//
+#include "types/IECCAny.h"
+#include "types/IECCAnyBit.h"
+#include "types/IECCAnyChar.h"
+#include "types/IECCAnyChars.h"
+#include "types/IECCAnyDate.h"
+#include "types/IECCAnyDerived.h"
+#include "types/IECCAnyDuration.h"
+#include "types/IECCAnyElementary.h"
+#include "types/IECCAnyInt.h"
+#include "types/IECCAnyMagnitude.h"
+#include "types/IECCAnyNum.h"
+#include "types/IECCAnyReal.h"
+#include "types/IECCAnySigned.h"
+#include "types/IECCAnyString.h"
+#include "types/IECCAnyUnsigned.h"
+#include "types/IECCBool.h"
+#include "types/IECCByte.h"
+#include "types/IECCChar.h"
+#include "types/IECCDateAndTime.h"
+#include "types/IECCDate.h"
+#include "types/IECCDInt.h"
+#include "types/IECCDWord.h"
+#include "types/IECCInt.h"
+#include "types/IECCLDateAndTime.h"
+#include "types/IECCLInt.h"
+#include "types/IECCLReal.h"
+#include "types/IECCLTime.h"
+#include "types/IECCLTimeOfDay.h"
+#include "types/IECCLWord.h"
+#include "types/IECCReal.h"
+#include "types/IECCSInt.h"
+#include "types/IECCString.h"
+#include "types/IECCTime.h"
+#include "types/IECCTimeOfDay.h"
+#include "types/IECCUDInt.h"
+#include "types/IECCUInt.h"
+#include "types/IECCULInt.h"
+#include "types/IECCUSInt.h"
+#include "types/IECCWChar.h"
+#include "types/IECCWord.h"
+#include "types/IECCWString.h"

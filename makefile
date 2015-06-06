@@ -59,7 +59,7 @@ $(DIR_IECC)/%.out.tmp $(DIR_IECC)/%.tmp.h: $(DIR_IECC)/%.ym
 
 $(DIR_IECC)/%.out.o: $(DIR_IECC)/%.out.tmp
 	@$(OBJC) -I$(INC_IECC) $(FLAGS) -fPIC -xobjective-c \
-						-c $< -o $@ -MMD -MF $(DIR_IECC)/$*.dep
+						-c $< -o $@ -MMD -MF $(DIR_IECC)/$*.out.dep
 
 .PHONY: clean
 
@@ -72,3 +72,5 @@ clean:
 	@echo Just works. :)
 
 -include $(SRC_IECC:.m=.dep)
+-include $(SRC_IECC_LM:.lm=.out.dep)
+-include $(SRC_IECC_YM:.ym=.out.dep)
