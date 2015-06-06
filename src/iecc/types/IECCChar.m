@@ -21,7 +21,7 @@
 * You should have received a copy of the GNU General Public License along with *
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
-#include "types/IECCChar.h"
+#import "types/IECCChar.h"
 
 @implementation IECCChar
   
