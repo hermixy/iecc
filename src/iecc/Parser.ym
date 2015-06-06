@@ -3,7 +3,7 @@
 * Authors: Paulo H. Torrens <paulotorrens AT gnu DOT org>.                     *
 * License: GNU GPLv3+.                                                         *
 *                                                                              *
-* Language: Bison -> (Modern) Objective-C.                                     *
+* Language: Bison -> (Legacy) Objective-C.                                     *
 * Description: Compiler parser file. It handles the grammar of the common base *
 *   and of all the programming languages supported.                            *
 ********************************************************************************
@@ -254,7 +254,9 @@
 translation_unit: POU_decl;
 
 /* Identifier, taken from table 2 of the standard */
-simple_identifier: TOK_IDENTIFIER;
+simple_identifier: TOK_IDENTIFIER {
+                   $$ = $1;
+                 };
 
 qualified_identifier: path simple_identifier;
 
@@ -489,8 +491,8 @@ type_decl: simple_type_decl
          | ref_type_decl;
 
 simple_type_decl: simple_identifier ':' simple_spec_init {
-                  NSLog(@"defining simple type [%@]", $3);
-                  // TODO
+                  // Simple type declaration
+                  [binder declareType: $1 as: [$3 objectAtIndex: 0]];
                 };
 
 simple_spec_init: simple_spec simple_set_value {

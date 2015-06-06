@@ -3,7 +3,7 @@
 * Authors: Paulo H. Torrens <paulotorrens AT gnu DOT org>.                     *
 * License: GNU GPLv3+.                                                         *
 *                                                                              *
-* Language: (Modern) Objective-C.                                              *
+* Language: (Legacy) Objective-C.                                              *
 * Description: Main compiler file. Meant to parse command line arguments and   *
 *   properly invoke the compiler. Run it with --help for proper details.       *
 ********************************************************************************

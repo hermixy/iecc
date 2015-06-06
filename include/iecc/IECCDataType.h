@@ -3,7 +3,7 @@
 * Authors: Paulo H. Torrens <paulotorrens AT gnu DOT org>.                     *
 * License: GNU GPLv3+.                                                         *
 *                                                                              *
-* Language: (Modern) Objective-C.                                              *
+* Language: (Legacy) Objective-C.                                              *
 * Description: Interface to represent data types of any of the IEC 61131-3     *
 *   programming languages. This file will also include all the standard types  *
 *   defined by the common language.                                            *

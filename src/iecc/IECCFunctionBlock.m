@@ -3,7 +3,7 @@
 * Authors: Paulo H. Torrens <paulotorrens AT gnu DOT org>.                     *
 * License: GNU GPLv3+.                                                         *
 *                                                                              *
-* Language: (Modern) Objective-C.                                              *
+* Language: (Legacy) Objective-C.                                              *
 * Description: Implementation of Function Block units.                         *
 ********************************************************************************
 * Copyright (C) 2015 - Paulo H. Torrens. All rights reserved.                  *

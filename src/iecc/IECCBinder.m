@@ -3,7 +3,7 @@
 * Authors: Paulo H. Torrens <paulotorrens AT gnu DOT org>.                     *
 * License: GNU GPLv3+.                                                         *
 *                                                                              *
-* Language: (Modern) Objective-C.                                              *
+* Language: (Legacy) Objective-C.                                              *
 * Description:                                                                 *
 ********************************************************************************
 * Copyright (C) 2015 - Paulo H. Torrens. All rights reserved.                  *
@@ -25,8 +25,42 @@
 // Header made by Bison:
 #import "./Parser.tmp.h"
 
+@interface NSDictionary (subscripting)
+- (id)objectForKeyedSubscript:(id)key;
+@end
+
+//
 @implementation IECCBinder
+  // Init our object
+  - (instancetype)init {
+    if((self = super.init)) {
+      // Setup variables
+      dictionary = NSMutableDictionary.new;
+    };
+    
+    // As always...
+    return self;
+  };
+  
+  //
+  - (void)declareType:(NSString *)name as:(IECCDataType *)type {
+    [dictionary setObject:type.retain forKey:name];
+  };
+  
+  //
+  - (IECCDataType *)type:(NSString *)name {
+    id obj = [dictionary objectForKey: name];
+    
+    if([obj isKindOfClass: IECCDataType.class]) {
+      return obj;
+    };
+    
+    return nil;
+  };
+  
+  // Cleanup memory
   - (void)dealloc {
+    [dictionary release];
     [super dealloc];
   };
 @end

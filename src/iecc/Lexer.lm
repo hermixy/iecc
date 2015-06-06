@@ -3,7 +3,7 @@
 * Authors: Paulo H. Torrens <paulotorrens AT gnu DOT org>.                     *
 * License: GNU GPLv3+.                                                         *
 *                                                                              *
-* Language: Flex -> (Modern) Objective-C.                                      *
+* Language: Flex -> (Legacy) Objective-C.                                      *
 * Description: Compiler lexer file.                                            *
 ********************************************************************************
 * Copyright (C) 2015 - Paulo H. Torrens. All rights reserved.                  *
@@ -401,8 +401,13 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
      the standard; had to be in the end
      after we already lexed keywords */
   {identifier}                          {
+                                          // First, copy the identifier
+                                          yylval = @(yytext);
+                                          
+                                          // Then check if it's declared already
+                                          id bound = [binder type: yylval];
+                                          
                                           // TODO
-                                          // We should check for types here!
                                           return TOK_IDENTIFIER;
                                         };
   

@@ -3,7 +3,7 @@
 * Authors: Paulo H. Torrens <paulotorrens AT gnu DOT org>.                     *
 * License: GNU GPLv3+.                                                         *
 *                                                                              *
-* Language: (Modern) Objective-C.                                              *
+* Language: (Legacy) Objective-C.                                              *
 * Description: Internal representation of a Program unit for IEC 61131-3       *
 *   programming languages.                                                     *
 ********************************************************************************

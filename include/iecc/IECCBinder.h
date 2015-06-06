@@ -3,7 +3,7 @@
 * Authors: Paulo H. Torrens <paulotorrens AT gnu DOT org>.                     *
 * License: GNU GPLv3+.                                                         *
 *                                                                              *
-* Language: (Modern) Objective-C.                                              *
+* Language: (Legacy) Objective-C.                                              *
 * Description:                                                                 *
 ********************************************************************************
 * Copyright (C) 2015 - Paulo H. Torrens. All rights reserved.                  *
@@ -23,10 +23,20 @@
 *******************************************************************************/
 #pragma once
 #import <Foundation/Foundation.h>
+#import "IECCDataType.h"
 
 /**
  *
  */
-@interface IECCBinder: NSObject
+@interface IECCBinder: NSObject {
+    // Private share
+    @private
+      //
+      NSMutableDictionary *dictionary;
+  };
+  
+  - (instancetype)init;
+  - (void)declareType:(NSString *)name as:(IECCDataType *)type;
+  - (IECCDataType *)type:(NSString *)name;
   - (void)dealloc;
 @end
