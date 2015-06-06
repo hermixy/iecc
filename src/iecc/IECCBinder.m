@@ -44,7 +44,8 @@
   
   //
   - (void)declareType:(NSString *)name as:(IECCDataType *)type {
-    [dictionary setObject:type.retain forKey:name];
+    NSLog(@"Declaring new type `%@` as %@", name, type);
+    [dictionary setObject:type forKey:name];
   };
   
   //
