@@ -421,13 +421,13 @@ string_size: /* empty */ {
 
 date_type_name: TOK_DATE {
                 $$ = IECCDate.new;
-              }
-              | TOK_LDATE {
-                $$ = IECCLDate.new;
               };
 
 time_type_name: TOK_TIME {
                 $$ = IECCTime.new;
+              }
+              | TOK_LTIME {
+                $$ = IECCLTime.new;
               };
 
 tod_type_name: TOK_TOD {
