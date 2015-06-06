@@ -28,5 +28,5 @@
  *
  */
 @interface IECCBinder: NSObject
-  
+  - (void)dealloc;
 @end

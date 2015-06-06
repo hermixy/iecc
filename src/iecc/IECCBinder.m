@@ -25,7 +25,6 @@
 
 @implementation IECCBinder
   - (void)dealloc {
-    super.dealloc;
-    printf("freeing binder\n");
+    [super dealloc];
   };
 @end

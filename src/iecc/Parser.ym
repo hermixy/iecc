@@ -38,16 +38,21 @@
   So, if you find the grammar confusing, don't blame me! :(
 */
 %code requires {
-  #import <IECCBinder.h>
-  #define YY_DECL int yylex(IECCBinder *binder)
+  #import "IECCBinder.h"
+  //#import "IECCDataType.h"
   
   //
+  #define YY_DECL int yylex(IECCBinder *binder)
   extern YY_DECL;
   
+  //
   #if YYBISON
     //
     #define yylex() yylex(binder)
   #endif
+  
+  //
+  #define YYSTYPE id
 }
 
 %{
@@ -291,27 +296,61 @@ time_literal: TOK_TIME_LITERAL;
 data_type_access: elem_type_name
                 | derived_type_access;
 
-elem_type_name: numeric_type_name
-              | bit_str_type_name
-              | string_type_name
-              | date_type_name
-              | time_type_name
-              | tod_type_name /* (For now) I believe that the standard */
-              | dt_type_name; /* forgot to add these rules here... =/  */
+elem_type_name: numeric_type_name {
+                $$ = $1;
+              }
+              | bit_str_type_name {
+                $$ = $1;
+              }
+              | string_type_name {
+                $$ = $1;
+              }
+              | date_type_name {
+                $$ = $1;
+              }
+              | time_type_name {
+                $$ = $1;
+              }
+              | tod_type_name { /* FIXME! */
+                $$ = $1;        /* (For now) I believe that the standard */
+              }                 /* forgot to add these rules here... =/  */
+              | dt_type_name {  /* FIXME! */
+                $$ = $1;        /* Ditto. */
+              };
 
-elem_type_name_opt: /* empty */
-                  | elem_type_name;
+elem_type_name_opt: /* empty */ {
+                    $$ = nil;
+                  }
+                  | elem_type_name {
+                    $$ = $1;
+                  };
 
-numeric_type_name: int_type_name
-                 | real_type_name;
+numeric_type_name: int_type_name {
+                   $$ = $1;
+                 }
+                 | real_type_name {
+                   $$ = $1;
+                 };
 
-int_type_name: sign_int_type_name
-             | unsign_int_type_name;
+int_type_name: sign_int_type_name {
+               $$ = $1;
+             }
+             | unsign_int_type_name {
+               $$ = $1;
+             };
 
-sign_int_type_name: TOK_SINT
-                  | TOK_INT
-                  | TOK_DINT
-                  | TOK_LINT;
+sign_int_type_name: TOK_SINT {
+                    $$ = $1;
+                  }
+                  | TOK_INT {
+                    $$ = $1;
+                  }
+                  | TOK_DINT {
+                    $$ = $1;
+                  }
+                  | TOK_LINT {
+                    $$ = $1;
+                  };
 
 unsign_int_type_name: TOK_USINT
                     | TOK_UINT
@@ -1271,7 +1310,7 @@ int main(int argc, char **argv) {
   
   yyparse(binder);
   
-  (void)binder.release;
+  [binder release];
   
   return EXIT_SUCCESS;
   
