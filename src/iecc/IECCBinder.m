@@ -22,6 +22,8 @@
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
 #import "IECCBinder.h"
+// Header made by Bison:
+#import "./Parser.tmp.h"
 
 @implementation IECCBinder
   - (void)dealloc {

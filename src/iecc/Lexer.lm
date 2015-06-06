@@ -24,7 +24,6 @@
 /* Small header */
 %{
   #import "IECCBinder.h"
-  #import "IECCDataType.h"
   
   // Header made by Bison:
   #import "./Parser.tmp.h"
@@ -118,13 +117,6 @@ date_literal          ({unsigned_int}"-"{unsigned_int}"-"{unsigned_int})
 dt                    ({dt_header}{date_literal}"-"{daytime})
 dt_header             ({dt_type_name}"#")
 dt_type_name          (L?DATE_AND_TIME|L?DT)
-
-
-
-
-
-
-
 
 /* Directly represented variables, taken from table 16 of the standard */
 direct_variable       ("%"[IQM]{direct_variable_size}?{direct_variable_addr})
@@ -256,10 +248,7 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
   /* Elementary data types, taken from
      table 10 of the standard */
   SINT                                  return TOK_SINT;
-  INT                                   {
-                                          yylval = [IECCInt class];
-                                          return TOK_INT;
-                                        };
+  INT                                   return TOK_INT;
   DINT                                  return TOK_DINT;
   LINT                                  return TOK_LINT;
   USINT                                 return TOK_USINT;

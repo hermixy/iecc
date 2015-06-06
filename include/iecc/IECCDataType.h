@@ -5,7 +5,8 @@
 *                                                                              *
 * Language: (Modern) Objective-C.                                              *
 * Description: Interface to represent data types of any of the IEC 61131-3     *
-*   programming languages.                                                     *
+*   programming languages. This file will also include all the standard types  *
+*   defined by the common language.                                            *
 ********************************************************************************
 * Copyright (C) 2015 - Paulo H. Torrens. All rights reserved.                  *
 *                                                                              *

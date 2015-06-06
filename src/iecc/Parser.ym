@@ -39,7 +39,6 @@
 */
 %code requires {
   #import "IECCBinder.h"
-  //#import "IECCDataType.h"
   
   //
   #define YY_DECL int yylex(IECCBinder *binder)
@@ -59,12 +58,18 @@
   //
   #import <stdlib.h>
   #import <stdio.h>
-  #import <IECCBinder.h>
+  #import "IECCBinder.h"
+  #import "IECCDataType.h"
   #define YYDEBUG 1
   
   //
   void yyerror(IECCBinder *binder, char const *str) {
-    printf("parsing error!!!\n%s\n", str);
+    
+    extern int yyleng;
+    extern int yycolumn;
+    extern int yylineno;
+    
+    printf("parsing error!!!\n%d:%d: %s\n", yylineno, yycolumn - yyleng, str);
   };
 %}
 
@@ -293,8 +298,12 @@ char_str: s_byte_char_str
 time_literal: TOK_TIME_LITERAL;
 
 /* Elementary data types, taken from table 10 of the standard */
-data_type_access: elem_type_name
-                | derived_type_access;
+data_type_access: elem_type_name {
+                  $$ = $1;
+                }
+                | derived_type_access {
+                  $$ = $1;
+                };
 
 elem_type_name: numeric_type_name {
                 $$ = $1;
@@ -340,51 +349,100 @@ int_type_name: sign_int_type_name {
              };
 
 sign_int_type_name: TOK_SINT {
-                    $$ = $1;
+                    $$ = IECCSInt.new;
                   }
                   | TOK_INT {
-                    $$ = $1;
+                    $$ = IECCInt.new;
                   }
                   | TOK_DINT {
-                    $$ = $1;
+                    $$ = IECCDInt.new;
                   }
                   | TOK_LINT {
-                    $$ = $1;
+                    $$ = IECCLInt.new;
                   };
 
-unsign_int_type_name: TOK_USINT
-                    | TOK_UINT
-                    | TOK_UDINT
-                    | TOK_ULINT;
+unsign_int_type_name: TOK_USINT {
+                      $$ = IECCUSInt.new;
+                    }
+                    | TOK_UINT {
+                      $$ = IECCUInt.new;
+                    }
+                    | TOK_UDINT {
+                      $$ = IECCUDInt.new;
+                    }
+                    | TOK_ULINT {
+                      $$ = IECCULInt.new;
+                    };
 
-real_type_name: TOK_REAL
-              | TOK_LREAL;
+real_type_name: TOK_REAL {
+                $$ = IECCReal.new;
+              }
+              | TOK_LREAL {
+                $$ = IECCLReal.new;
+              };
 
-bit_str_type_name: TOK_BOOL
-                 | TOK_BYTE
-                 | TOK_WORD
-                 | TOK_DWORD
-                 | TOK_LWORD;
+bit_str_type_name: TOK_BOOL {
+                   $$ = IECCBool.new;
+                 }
+                 | TOK_BYTE {
+                   $$ = IECCByte.new;
+                 }
+                 | TOK_WORD {
+                   $$ = IECCWord.new;
+                 }
+                 | TOK_DWORD {
+                   $$ = IECCDWord.new;
+                 }
+                 | TOK_LWORD {
+                   $$ = IECCLWord.new;
+                 };
 
-string_type_name: TOK_STRING string_size
-                | TOK_WSTRING string_size
-                | TOK_CHAR
-                | TOK_WCHAR;
+string_type_name: TOK_STRING string_size {
+                  $$ = IECCString.new;
+                  // TODO: set string size!!!
+                }
+                | TOK_WSTRING string_size {
+                  $$ = IECCWString.new;
+                  // TODO: set string size!!!
+                }
+                | TOK_CHAR {
+                  $$ = IECCChar.new;
+                }
+                | TOK_WCHAR {
+                  $$ = IECCWChar.new;
+                };
 
-string_size: /* empty */
-           | '[' TOK_UNSIGNED_INT_LITERAL ']';
+string_size: /* empty */ {
+             $$ = nil;
+           }
+           | '[' TOK_UNSIGNED_INT_LITERAL ']' {
+             // TODO!!!
+           };
 
-date_type_name: TOK_DATE
-              | TOK_LDATE;
+date_type_name: TOK_DATE {
+                $$ = IECCDate.new;
+              }
+              | TOK_LDATE {
+                $$ = IECCLDate.new;
+              };
 
-time_type_name: TOK_TIME
-              | TOK_LTIME;
+time_type_name: TOK_TIME {
+                $$ = IECCTime.new;
+              };
 
-tod_type_name: TOK_TOD
-             | TOK_LTOD;
+tod_type_name: TOK_TOD {
+               $$ = IECCTimeOfDay.new;
+             }
+             | TOK_LTOD {
+               $$ = IECCLTimeOfDay.new;
+             }
 
-dt_type_name: TOK_DT
-            | TOK_LDT
+dt_type_name: TOK_DT {
+              $$ = IECCDateAndTime.new;
+            }
+            | TOK_LDT {
+              $$ = IECCDateAndTime.new;
+            };
 
 /* User data types, taken from table 11 of the standard */
 derived_type_access: single_elem_type_access
@@ -431,10 +489,13 @@ type_decl: simple_type_decl
          | ref_type_decl;
 
 simple_type_decl: simple_identifier ':' simple_spec_init {
-                  printf("Defined a simple type.\n");
+                  NSLog(@"defining simple type [%@]", $3);
+                  // TODO
                 };
 
-simple_spec_init: simple_spec simple_set_value;
+simple_spec_init: simple_spec simple_set_value {
+                  $$ = @[$1 /*, TODO */];
+                };
 
 simple_spec: elem_type_name
            | simple_type_access;
@@ -1304,13 +1365,15 @@ multibit_part_access: TOK_TODO;
  */
 int main(int argc, char **argv) {
   
-  yydebug = argv[1] && strcmp(argv[1], "debug") == 0;
-  
-  IECCBinder *binder = IECCBinder.new;
-  
-  yyparse(binder);
-  
-  [binder release];
+  @autoreleasepool {
+    yydebug = argv[1] && strcmp(argv[1], "debug") == 0;
+    
+    IECCBinder *binder = IECCBinder.new;
+    
+    yyparse(binder);
+    
+    [binder autorelease];
+  };
   
   return EXIT_SUCCESS;
   
