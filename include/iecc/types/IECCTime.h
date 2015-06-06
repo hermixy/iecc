@@ -21,13 +21,20 @@
 * You should have received a copy of the GNU General Public License along with *
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
-#pragma once
-#import "types/IECCAnyDuration.h"
+//
+#ifndef __IECC_INCLUDE_IECC_TYPES_TIME_INCLUDE__
+  #define __IECC_INCLUDE_IECC_TYPES_TIME_INCLUDE__
+  #include "types/IECCAnyDuration.h"
+#endif
 
-/**
- *
- */
-@interface IECCTime: IECCAnyDuration
-  
-@end
-
+//
+#ifndef __IECC_INCLUDE_IECC_TYPES_TIME_DEFINE__
+  #ifdef __IECC_INCLUDE_IECC_TYPES_ANY_DURATION_DEFINE__
+    #define __IECC_INCLUDE_IECC_TYPES_TIME_DEFINE__
+    
+    //
+    @interface IECCTime: IECCAnyDuration
+      
+    @end
+  #endif
+#endif

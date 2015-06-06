@@ -21,13 +21,20 @@
 * You should have received a copy of the GNU General Public License along with *
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
-#pragma once
-#import "types/IECCAnyBit.h"
+//
+#ifndef __IECC_INCLUDE_IECC_TYPES_BOOL_INCLUDE__
+  #define __IECC_INCLUDE_IECC_TYPES_BOOL_INCLUDE__
+  #include "types/IECCAnyBit.h"
+#endif
 
-/**
- *
- */
-@interface IECCBool: IECCAnyBit
-  
-@end
-
+//
+#ifndef __IECC_INCLUDE_IECC_TYPES_BOOL_DEFINE__
+  #ifdef __IECC_INCLUDE_IECC_TYPES_ANY_BIT_DEFINE__
+    #define __IECC_INCLUDE_IECC_TYPES_BOOL_DEFINE__
+    
+    //
+    @interface IECCBool: IECCAnyBit
+      
+    @end
+  #endif
+#endif

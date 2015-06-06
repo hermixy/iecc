@@ -21,13 +21,20 @@
 * You should have received a copy of the GNU General Public License along with *
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
-#pragma once
-#import "types/IECCAnyNum.h"
+//
+#ifndef __IECC_INCLUDE_IECC_TYPES_ANY_REAL_INCLUDE__
+  #define __IECC_INCLUDE_IECC_TYPES_ANY_REAL_INCLUDE__
+  #include "types/IECCAnyNum.h"
+#endif
 
-/**
- *
- */
-@interface IECCAnyReal: IECCAnyNum
-  
-@end
-
+//
+#ifndef __IECC_INCLUDE_IECC_TYPES_ANY_REAL_DEFINE__
+  #ifdef __IECC_INCLUDE_IECC_TYPES_ANY_NUM_DEFINE__
+    #define __IECC_INCLUDE_IECC_TYPES_ANY_REAL_DEFINE__
+    
+    //
+    @interface IECCAnyReal: IECCAnyNum
+      
+    @end
+  #endif
+#endif

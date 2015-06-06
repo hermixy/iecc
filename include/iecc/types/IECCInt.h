@@ -21,13 +21,20 @@
 * You should have received a copy of the GNU General Public License along with *
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
-#pragma once
-#import "types/IECCAnySigned.h"
+//
+#ifndef __IECC_INCLUDE_IECC_TYPES_INT_INCLUDE__
+  #define __IECC_INCLUDE_IECC_TYPES_INT_INCLUDE__
+  #include "types/IECCAnySigned.h"
+#endif
 
-/**
- *
- */
-@interface IECCInt: IECCAnySigned
-  
-@end
-
+//
+#ifndef __IECC_INCLUDE_IECC_TYPES_INT_DEFINE__
+  #ifdef __IECC_INCLUDE_IECC_TYPES_ANY_SIGNED_DEFINE__
+    #define __IECC_INCLUDE_IECC_TYPES_INT_DEFINE__
+    
+    //
+    @interface IECCInt: IECCAnySigned
+      
+    @end
+  #endif
+#endif

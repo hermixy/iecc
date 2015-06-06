@@ -21,13 +21,20 @@
 * You should have received a copy of the GNU General Public License along with *
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
-#pragma once
-#import "types/IECCAnyChars.h"
+//
+#ifndef __IECC_INCLUDE_IECC_TYPES_ANY_STRING_INCLUDE__
+  #define __IECC_INCLUDE_IECC_TYPES_ANY_STRING_INCLUDE__
+  #include "types/IECCAnyChars.h"
+#endif
 
-/**
- *
- */
-@interface IECCAnyString: IECCAnyChars
-  
-@end
-
+//
+#ifndef __IECC_INCLUDE_IECC_TYPES_ANY_STRING_DEFINE__
+  #ifdef __IECC_INCLUDE_IECC_TYPES_ANY_CHARS_DEFINE__
+    #define __IECC_INCLUDE_IECC_TYPES_ANY_STRING_DEFINE__
+    
+    //
+    @interface IECCAnyString: IECCAnyChars
+      
+    @end
+  #endif
+#endif

@@ -21,13 +21,20 @@
 * You should have received a copy of the GNU General Public License along with *
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
-#pragma once
-#import "types/IECCAnyElementary.h"
+//
+#ifndef __IECC_INCLUDE_IECC_TYPES_ANY_MAGNITUDE_INCLUDE__
+  #define __IECC_INCLUDE_IECC_TYPES_ANY_MAGNITUDE_INCLUDE__
+  #include "types/IECCAnyElementary.h"
+#endif
 
-/**
- *
- */
-@interface IECCAnyMagnitude: IECCAnyElementary
-  
-@end
-
+//
+#ifndef __IECC_INCLUDE_IECC_TYPES_ANY_MAGNITUDE_DEFINE__
+  #ifdef __IECC_INCLUDE_IECC_TYPES_ANY_ELEMENTARY_DEFINE__
+    #define __IECC_INCLUDE_IECC_TYPES_ANY_MAGNITUDE_DEFINE__
+    
+    //
+    @interface IECCAnyMagnitude: IECCAnyElementary
+      
+    @end
+  #endif
+#endif
