@@ -494,7 +494,11 @@ type_decl: simple_type_decl
 
 simple_type_decl: simple_identifier ':' simple_spec_init {
                   // Simple type declaration
-                  [binder declareType:$1 as: [$3 objectAtIndex:0]];
+                  [binder
+                    declareType:$1
+                             as:[$3 objectAtIndex:0]
+                             atLine:@1.first_line
+                  ];
                 };
 
 simple_spec_init: simple_spec simple_set_value {

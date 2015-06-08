@@ -28,8 +28,8 @@ SRC_IECC_M = $(shell find $(DIR_IECC) -name "*.m")
 SRC_IECC_LM = $(shell find $(DIR_IECC) -name "*.lm")
 SRC_IECC_YM = $(shell find $(DIR_IECC) -name "*.ym")
 OBJ_IECC = $(SRC_IECC_YM:.ym=.out.o) \
-					 $(SRC_IECC_LM:.lm=.out.o) \
-					 $(SRC_IECC_M:.m=.o)
+           $(SRC_IECC_LM:.lm=.out.o) \
+           $(SRC_IECC_M:.m=.o)
 
 IECC_BIN=iecc
 IECC_LIB=iecc.so
@@ -47,7 +47,7 @@ $(IECC_LIB): $(OBJ_IECC)
 $(DIR_IECC)/%.o: $(DIR_IECC)/%.m
 	@echo Compiling $*.m...
 	@$(OBJC) -I$(INC_IECC) $(FLAGS) -fPIC \
-					 -c $< -o $@ -MMD -MF $(DIR_IECC)/$*.dep
+           -c $< -o $@ -MMD -MF $(DIR_IECC)/$*.dep
 
 $(DIR_IECC)/%.out.tmp: $(DIR_IECC)/%.lm
 	@echo Building and compiling $*.lm...
@@ -55,11 +55,11 @@ $(DIR_IECC)/%.out.tmp: $(DIR_IECC)/%.lm
 
 $(DIR_IECC)/%.out.tmp $(DIR_IECC)/%.tmp.h: $(DIR_IECC)/%.ym
 	@echo Building and compiling $*.ym...
-	@$(YACC) --report=states --report-file=$(DIR_IECC)/$*.states.tmp -o $(DIR_IECC)/$*.out.tmp --defines=$(DIR_IECC)/$*.tmp.h $<
+	@$(YACC) -o $(DIR_IECC)/$*.out.tmp --defines=$(DIR_IECC)/$*.tmp.h $<
 
 $(DIR_IECC)/%.out.o: $(DIR_IECC)/%.out.tmp
 	@$(OBJC) -I$(INC_IECC) $(FLAGS) -fPIC -xobjective-c \
-						-c $< -o $@ -MMD -MF $(DIR_IECC)/$*.out.dep
+           -c $< -o $@ -MMD -MF $(DIR_IECC)/$*.out.dep
 
 .PHONY: clean
 

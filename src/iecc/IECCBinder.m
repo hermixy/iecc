@@ -43,14 +43,13 @@
   };
   
   //
-  - (void)declareType:(NSString *)name as:(IECCDataType *)type {
-    NSLog(@"Declaring new type `%@` as %@", name, type);
-    [dictionary setObject:type forKey:name];
+  - (void)declareType:(NSString *)name as:(IECCDataType *)type atLine:(int)pos {
+    [dictionary setObject:@[type, @(pos)] forKey:name.capitalizedString];
   };
   
   //
   - (IECCDataType *)type:(NSString *)name {
-    id obj = [dictionary objectForKey: name];
+    id obj = [[dictionary objectForKey: name.capitalizedString] objectAtIndex: 0];
     
     if([obj isKindOfClass: IECCDataType.class]) {
       return obj;

@@ -36,7 +36,7 @@
   };
   
   - (instancetype)init;
-  - (void)declareType:(NSString *)name as:(IECCDataType *)type;
+  - (void)declareType:(NSString *)name as:(IECCDataType *)type atLine:(int)pos;
   - (IECCDataType *)type:(NSString *)name;
   - (void)dealloc;
 @end
