@@ -48,7 +48,7 @@
   };
   
   //
-  - (IECCDataType *)type:(NSString *)name {
+  - (__weak IECCDataType *)type:(NSString *)name {
     id obj = [[dictionary objectForKey: name.capitalizedString] objectAtIndex: 0];
     
     if([obj isKindOfClass: IECCDataType.class]) {
@@ -60,7 +60,7 @@
   
   // Cleanup memory
   - (void)dealloc {
-    [dictionary release];
+    [dictionary autorelease];
     [super dealloc];
   };
 @end

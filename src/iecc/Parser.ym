@@ -499,6 +499,7 @@ simple_type_decl: simple_identifier ':' simple_spec_init {
                              as:[$3 objectAtIndex:0]
                              atLine:@1.first_line
                   ];
+                  
                 };
 
 simple_spec_init: simple_spec simple_set_value {
@@ -506,7 +507,7 @@ simple_spec_init: simple_spec simple_set_value {
                 };
 
 simple_spec: elem_type_name {
-             $$ = $1;
+             $$ = [$1 autorelease];
            }
            | simple_type_access {
              $$ = [binder type:$1];
@@ -1386,6 +1387,8 @@ int main(int argc, char **argv) {
     
     [binder autorelease];
   };
+  
+  printf("Hmm...\n");
   
   return EXIT_SUCCESS;
   

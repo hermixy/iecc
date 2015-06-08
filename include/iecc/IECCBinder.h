@@ -31,12 +31,29 @@
 @interface IECCBinder: NSObject {
     // Private share
     @private
-      //
+      /**
+       *
+       */
       NSMutableDictionary *dictionary;
   };
   
+  /**
+   *
+   */
   - (instancetype)init;
+  
+  /**
+   *
+   */
   - (void)declareType:(NSString *)name as:(IECCDataType *)type atLine:(int)pos;
-  - (IECCDataType *)type:(NSString *)name;
+  
+  /**
+   *
+   */
+  - (__weak IECCDataType *)type:(NSString *)name;
+  
+  /**
+   *
+   */
   - (void)dealloc;
 @end
