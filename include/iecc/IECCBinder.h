@@ -25,6 +25,8 @@
 #import <Foundation/Foundation.h>
 #import "IECCDataType.h"
 
+// TODO: add contexts, for namespace lookup and stuff
+
 /**
  *
  */

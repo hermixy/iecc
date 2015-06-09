@@ -21,13 +21,13 @@
 * You should have received a copy of the GNU General Public License along with *
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
-#import "NSNumber+FromCString.h"
+#import "NSNumber+IECString.h"
 
 /**
  *
  */
-@implementation NSNumber(FromCString)
-  + (instancetype)numberWithCString: (const char *)string {
+@implementation NSNumber(IECString)
+  + (instancetype)numberWithIECString: (const char *)string {
     // TODO
     
     return @0;

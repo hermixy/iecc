@@ -27,6 +27,6 @@
 /**
  *
  */
-@interface NSNumber(FromCString)
-  + (instancetype)numberWithCString: (const char *)string;
+@interface NSNumber(IECString)
+  + (instancetype)numberWithIECString: (const char *)string;
 @end

@@ -93,7 +93,6 @@
 
 /* Table 2 */
 %token TOK_IDENTIFIER "unbound identifier"
-%token TOK_QUALIFIED_IDENTIFIER
 
 /* Table 5 */
 %token TOK_SIGNED_INT_LITERAL
@@ -780,8 +779,8 @@ array_var_decl_init: variable_list ':' array_spec_init;
 
 array_conformand: TOK_ARRAY '[' star_list ']' TOK_OF data_type_access;
 
-star_list: '*'
-         | star_list ',' '*';
+star_list: TOK_TIMES
+         | star_list ',' TOK_TIMES;
 
 star_list_opt: /* empty */
              | star_list;
@@ -1402,7 +1401,7 @@ stmt_list: TOK_LANG_ST;
 sfc: TOK_LANG_SFC;
 other_languages: TOK_LANG_C;
 
-constant_expr: TOK_TODO;
+/* constant_expr: TOK_TODO; */
 expression: TOK_TODO;
 multibit_part_access: TOK_TODO;
 
