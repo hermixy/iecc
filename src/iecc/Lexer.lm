@@ -24,7 +24,7 @@
 /* Small header */
 %{
   #import "IECCBinder.h"
-  #import "NSNumber+IECString.h"
+  #import "NSNumber+IECC.h"
   
   // Header made by Bison:
   #import "./Parser.tmp.h"
@@ -179,30 +179,24 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
      5 of the standard */
   {unsigned_int}                        {
                                           // Parse our number
-                                          yylval = [
-                                            [NSNumber
-                                              fromIECString: yytext
-                                            ] autorelease
+                                          yylval = [NSNumber
+                                            numberWithIECString: yytext
                                           ];
                                           return TOK_UNSIGNED_INT_LITERAL;
                                         };
   
   {signed_int}                          {
                                           // Parse our number
-                                          yylval = [
-                                            [NSNumber
-                                              fromIECString: yytext
-                                            ] autorelease
+                                          yylval = [NSNumber
+                                            numberWithIECString: yytext
                                           ];
                                           return TOK_SIGNED_INT_LITERAL;
                                         };
   
   {int_literal}                         {
                                           // Parse our number
-                                          yylval = [
-                                            [NSNumber
-                                              fromIECString: yytext
-                                            ] autorelease
+                                          yylval = [NSNumber
+                                            numberWithIECString: yytext
                                           ];
                                           return TOK_GENERIC_INT_LITERAL;
                                         };
