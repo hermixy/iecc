@@ -166,6 +166,7 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
      the standard */
   "/*"                                  PUSH COMMENT_SLASH;
   "(*"                                  PUSH COMMENT_PAREN;
+  "//"[^\r\n]*                          (void)0;
   
   /* Pragmas, taken from table 4 of the
      standard */
@@ -456,11 +457,14 @@ void yy_user_action(void) {
 
 //
 int get_identifier_token(IECCDataType *type) {
-  // Helper macro :)
+  // Helper macros :)
   #define SIMPLE(c) if([type isKindOfClass: [IECC ## c class]]) \
                       return TOK_SIMPLE_TYPENAME;
   
-  // Actual checks (LDate doesn't seem supported!)
+  #define STRING(c) if([type isKindOfClass: [IECC ## c class]]) \
+                      return TOK_STRING_TYPENAME;
+  
+  // Simple types...
   SIMPLE(Bool);
   SIMPLE(SInt);
   SIMPLE(Int);
@@ -480,15 +484,20 @@ int get_identifier_token(IECCDataType *type) {
   SIMPLE(LTimeOfDay);
   SIMPLE(DateAndTime);
   SIMPLE(LDateAndTime);
-  SIMPLE(Char);
-  SIMPLE(WChar);
   SIMPLE(Byte);
   SIMPLE(Word);
   SIMPLE(DWord);
   SIMPLE(LWord);
   
+  // String types...
+  STRING(Char);
+  STRING(WChar);
+  STRING(String);
+  STRING(WString);
+  
   // Clean things up...
   #undef SIMPLE
+  #undef STRING
   
   // If not found, this is an (unbound) identifier!
   return TOK_IDENTIFIER;

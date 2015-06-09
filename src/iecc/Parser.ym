@@ -69,7 +69,7 @@
     extern int yycolumn;
     extern int yylineno;
     
-    printf("parsing error!!!\n%d:%d: %s\n", yylineno, yycolumn - yyleng, str);
+    printf("At %d:%d: %s\n", yylineno, yycolumn - yyleng, str);
   };
 %}
 
@@ -141,7 +141,7 @@
 %token TOK_LDT
 
 /* Table 11 */
-%token TOK_SIMPLE_TYPENAME
+%token TOK_SIMPLE_TYPENAME "typename"
 %token TOK_SUBRANGE_TYPENAME
 %token TOK_ENUM_TYPENAME
 %token TOK_ARRAY_TYPENAME
@@ -152,7 +152,7 @@
 %token TOK_INTERFACE_TYPENAME
 %token TOK_ENUM_LITERAL
 %token TOK_TYPE
-%token TOK_END_TYPE
+%token TOK_END_TYPE "END_TYPE"
 %token TOK_ARRAY
 %token TOK_OF
 %token TOK_STRUCT
@@ -461,6 +461,10 @@ single_elem_type_access: simple_type_access
 
 simple_type_access: TOK_SIMPLE_TYPENAME {
                     $$ = $1;
+                  }
+                  | TOK_STRING_TYPENAME {
+                    /* Strings count as simple types! */
+                    $$ = $1;
                   };
 
 subrange_type_access: TOK_SUBRANGE_TYPENAME;
@@ -471,7 +475,9 @@ array_type_access: TOK_ARRAY_TYPENAME;
 
 struct_type_access: TOK_STRUCT_TYPENAME;
 
-string_type_access: TOK_STRING_TYPENAME;
+string_type_access: TOK_STRING_TYPENAME {
+                    $$ = $1;
+                  };
 
 class_type_access: TOK_CLASS_TYPENAME;
 
@@ -484,12 +490,12 @@ data_type_decl: TOK_TYPE type_decl_list TOK_END_TYPE;
 type_decl_list: type_decl ';'
               | type_decl_list type_decl ';';
 
-type_decl: simple_type_decl
+type_decl: simple_type_decl     %dprec 50
          | subrange_type_decl
          | enum_type_decl
          | array_type_decl
          | struct_type_decl
-         | str_type_decl
+         | str_type_decl        %dprec 10
          | ref_type_decl;
 
 simple_type_decl: simple_identifier ':' simple_spec_init {
