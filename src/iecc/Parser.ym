@@ -243,6 +243,34 @@
 %token TOK_LANG_SFC
 %token TOK_LANG_C
 
+/* Operators... */
+%token TOK_OR
+%token TOK_XOR
+%token TOK_AND
+%token TOK_EQUAL
+%token TOK_DIFF
+%token TOK_LESS
+%token TOK_MORE
+%token TOK_LESS_EQ
+%token TOK_MORE_EQ
+%token TOK_PLUS
+%token TOK_MINUS
+%token TOK_TIMES
+%token TOK_DIV
+%token TOK_MOD
+%token TOK_POWER
+%token TOK_NOT
+
+%left TOK_OR
+%left TOK_XOR
+%left TOK_AND
+%left TOK_EQUAL TOK_DIFF
+%left TOK_LESS TOK_MORE TOK_LESS_EQ TOK_MORE_EQ
+%left TOK_PLUS TOK_MINUS
+%left TOK_TIMES TOK_DIV TOK_MOD
+%left TOK_POWER
+%left TOK_NOT TOK_UNARY_MINUS TOK_UNARY_PLUS
+
 %%
 /******************************************************************************/
 /* Base common language. All sublanguages (ST, IL, LD, etc) will be placed in */
@@ -633,7 +661,9 @@ struct_elem_set_value: TOK_SET constant_expr
                      | TOK_SET struct_init
                      | TOK_SET ref_value;
 
-str_type_decl: simple_identifier ':' string_type_name string_set_value;
+str_type_decl: simple_identifier ':' string_type_name string_set_value {
+               // TODO!!!
+             };
 
 string_set_value: /* empty */
                 | TOK_SET char_str;
@@ -1376,6 +1406,54 @@ constant_expr: TOK_TODO;
 expression: TOK_TODO;
 multibit_part_access: TOK_TODO;
 
+/******************************************************************************/
+/*                    Structured Text Programming Language                    */
+/******************************************************************************/
+constant_expr: constant_expr TOK_OR constant_expr
+             | constant_expr TOK_XOR constant_expr
+             | constant_expr TOK_AND constant_expr
+             | constant_expr TOK_EQUAL constant_expr
+             | constant_expr TOK_DIFF constant_expr
+             | constant_expr TOK_LESS constant_expr
+             | constant_expr TOK_MORE constant_expr
+             | constant_expr TOK_LESS_EQ constant_expr
+             | constant_expr TOK_MORE_EQ constant_expr
+             | constant_expr TOK_PLUS constant_expr
+             | constant_expr TOK_MINUS constant_expr
+             | constant_expr TOK_TIMES constant_expr
+             | constant_expr TOK_DIV constant_expr
+             | constant_expr TOK_MOD constant_expr
+             | constant_expr TOK_POWER constant_expr
+             | TOK_MINUS constant_expr %prec TOK_UNARY_MINUS
+             | TOK_PLUS constant_expr %prec TOK_UNARY_PLUS
+             | TOK_NOT constant_expr
+             | numeric_literal;
+
+/******************************************************************************/
+/*                    Instruction List Programming Language                   */
+/******************************************************************************/
+
+
+/******************************************************************************/
+/*                     Ladder Diagram Programming Language                    */
+/******************************************************************************/
+
+
+/******************************************************************************/
+/*                 Function Block Diagram Programming Language                */
+/******************************************************************************/
+
+
+/******************************************************************************/
+/*                Sequential Function Chart Programming Language              */
+/******************************************************************************/
+
+
+/******************************************************************************/
+/*                           C Programming Language                           */
+/******************************************************************************/
+
+
 %%
 
 /**
@@ -1393,8 +1471,6 @@ int main(int argc, char **argv) {
     
     [binder autorelease];
   };
-  
-  printf("Hmm...\n");
   
   return EXIT_SUCCESS;
   

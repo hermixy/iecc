@@ -24,6 +24,7 @@
 /* Small header */
 %{
   #import "IECCBinder.h"
+  #import "NSNumber+FromCString.h"
   
   // Header made by Bison:
   #import "./Parser.tmp.h"
@@ -402,6 +403,26 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
   
   /* Cause why not? */
   TODO                                  return TOK_TODO;
+  
+  /* Borrowed from the Structured Text
+     language while we are in "mixed"
+     mode */
+  "OR"                                  return TOK_OR;
+  "XOR"                                 return TOK_XOR;
+  "AND"|"&"                             return TOK_AND;
+  "="                                   return TOK_EQUAL;
+  "<>"                                  return TOK_DIFF;
+  "<"                                   return TOK_LESS;
+  ">"                                   return TOK_MORE;
+  "<="                                  return TOK_LESS_EQ;
+  ">="                                  return TOK_MORE_EQ;
+  "+"                                   return TOK_PLUS;
+  "-"                                   return TOK_MINUS;
+  "*"                                   return TOK_TIMES;
+  "/"                                   return TOK_DIV;
+  "MOD"                                 return TOK_MOD;
+  "**"                                  return TOK_POWER;
+  "NOT"                                 return TOK_NOT;
   
   /* Identifier, taken from table 2 of
      the standard; had to be in the end
