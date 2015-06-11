@@ -26,15 +26,20 @@
 #import <limits.h>
 #import "NSNumber+IECC.h"
 
-//
-#define SINT_MIN (~0x7F)
-#define SINT_MAX (+0x7F)
-#define  INT_MIN (~0x7FFF)
-#define  INT_MAX (+0x7FFF)
-#define DINT_MIN (~0x7FFFFFFF)
-#define DINT_MAX (+0x7FFFFFFF)
-#define LINT_MIN (~0x7FFFFFFFFFFFFFFF)
-#define LINT_MAX (+0x7FFFFFFFFFFFFFFF)
+// Our known bounds (taken from table 10 of the standard)
+#define IEC_SINT_MIN  (~0x7F)
+#define IEC_SINT_MAX  (+0x7F)
+#define IEC_USINT_MAX (+0xFF)
+#define IEC_INT_MIN   (~0x7FFF)
+#define IEC_INT_MAX   (+0x7FFF)
+#define IEC_UINT_MAX  (+0xFFFF)
+#define IEC_DINT_MIN  (~0x7FFFFFFFl)
+#define IEC_DINT_MAX  (+0x7FFFFFFFl)
+#define IEC_UDINT_MAX (+0xFFFFFFFFl)
+#define IEC_LINT_MIN  (~0x7FFFFFFFFFFFFFFFll)
+#define IEC_LINT_MAX  (+0x7FFFFFFFFFFFFFFFll)
+#define IEC_ULINT_MAX (+0xFFFFFFFFFFFFFFFFll)
+
 
 // Verifies if `string' starts with `start', case insensitive
 static const char *starts_with(char const *string, char const *start) {
@@ -67,57 +72,65 @@ static void out_of_limits(const char *string, int64_t lower, uint64_t higher) {
       
       if(hash) {
         
-        char *hash;
+        const char *hash;
         
-        if((hash = starts_with(string, "16"))) {
-          
+        /* TODO: different bases! */
+        
+        // All known conversions
+        static const struct {
+          const char *name;
+          _Bool is_signed;
+          int64_t lower_limit;
+          uint64_t higher_limit;
+        } data[] = {
+          {"sint",  YES, IEC_SINT_MIN, IEC_SINT_MAX},
+          {"int",   YES, IEC_INT_MIN,  IEC_INT_MAX},
+          {"dint",  YES, IEC_DINT_MIN, IEC_DINT_MAX},
+          {"lint",  YES, IEC_LINT_MIN, IEC_LINT_MAX},
+          {"usint", NO,  0,            IEC_USINT_MAX},
+          {"uint",  NO,  0,            IEC_UINT_MAX},
+          {"udint", NO,  0,            IEC_UDINT_MAX},
+          {"ulint", NO,  0,            IEC_ULINT_MAX},
         };
         
-        if((hash = starts_with(string, "8"))) {
-          
-        };
-        
-        if((hash = starts_with(string, "2"))) {
-          
-        };
-        
-        char *end;
-        long long result = strtoll(string, &end, 10);
-        
-        if((hash = starts_with(string, "sint"))) {
-          
-        };
-        
-        if((hash = starts_with(string, "int"))) {
-          
-        };
-        
-        if((hash = starts_with(string, "dint"))) {
-          
-        };
-        
-        if((hash = starts_with(string, "lint"))) {
-          
-        };
-        
-        if((hash = starts_with(string, "usint"))) {
-          
-        };
-        
-        if((hash = starts_with(string, "uint"))) {
-          
-        };
-        
-        if((hash = starts_with(string, "udint"))) {
-          
-        };
-        
-        if((hash = starts_with(string, "ulint"))) {
-          
+        // Try each conversion!
+        for(int i = 0; i < sizeof(data) / sizeof(*data); i++) {
+          if((hash = starts_with(string, data[i].name))) {
+            
+            // Check for correctness...
+            assert("Internal compiler error." && '#' == *hash);
+            
+            // Lets try our cast
+            char *end;
+            union {
+              long long ll;
+              unsigned long long ull;
+            } result;
+            
+            // There are two possible conversions!
+            if(data[i].is_signed) {
+              result.ll = strtoll(hash + 1, &end, 10);
+            } else {
+              result.ull = strtoull(hash + 1, &end, 10);
+            };
+            
+            // Check for correctness...
+            assert("Internal compiler error." && (*end == (char)0));
+            
+            // Did we get a range error?
+            if(errno == ERANGE) {
+              // We are using bools to represent overflow internally
+              out_of_limits(string, data[i].lower_limit, data[i].higher_limit);
+              return [NSNumber numberWithBool: YES];
+            };
+            
+            // We have our number now :)
+            return data[i].is_signed ? @(result.ll) : @(result.ull);
+          };
         };
         
         // We shouldn't fall here!
-        assert("Internal compiler error." && NULL);
+        assert(!"Internal compiler error.");
         
       } else {
         // We should have a common number here
@@ -130,12 +143,12 @@ static void out_of_limits(const char *string, int64_t lower, uint64_t higher) {
         // Did we get a range error?
         if(errno == ERANGE) {
           // We are using bools to represent overflow internally
-          out_of_limits(string, LINT_MIN, LINT_MAX);
+          out_of_limits(string, IEC_LINT_MIN, IEC_LINT_MAX);
           return [NSNumber numberWithBool: YES];
-        } else {
-          // Read the number as a long long :)
-          return [NSNumber numberWithLongLong: result];
         };
+        
+        // Convert the number!
+        return @(result);
       };
       
     };

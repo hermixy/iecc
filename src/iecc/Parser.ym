@@ -1462,6 +1462,7 @@ constant_expr: constant_expr TOK_OR constant_expr
 int main(int argc, char **argv) {
   
   @autoreleasepool {
+    
     yydebug = argv[1] && strcmp(argv[1], "debug") == 0;
     
     IECCBinder *binder = IECCBinder.new;
