@@ -27,8 +27,14 @@
 #import "NSNumber+IECC.h"
 
 //
-#define LINT_MIN -9223372036854775808ll
-#define LINT_MAX  9223372036854775807ll
+#define SINT_MIN (~0x7F)
+#define SINT_MAX (+0x7F)
+#define  INT_MIN (~0x7FFF)
+#define  INT_MAX (+0x7FFF)
+#define DINT_MIN (~0x7FFFFFFF)
+#define DINT_MAX (+0x7FFFFFFF)
+#define LINT_MIN (~0x7FFFFFFFFFFFFFFF)
+#define LINT_MAX (+0x7FFFFFFFFFFFFFFF)
 
 // Verifies if `string' starts with `start', case insensitive
 static const char *starts_with(char const *string, char const *start) {
@@ -110,6 +116,7 @@ static void out_of_limits(const char *string, int64_t lower, uint64_t higher) {
           
         };
         
+        // We shouldn't fall here!
         assert("Internal compiler error." && NULL);
         
       } else {
@@ -117,8 +124,10 @@ static void out_of_limits(const char *string, int64_t lower, uint64_t higher) {
         char *end;
         long long result = strtoll(string, &end, 10);
         
+        // Our string should be well behaved, so...
         assert("Internal compiler error." && (*end == (char)0));
         
+        // Did we get a range error?
         if(errno == ERANGE) {
           // We are using bools to represent overflow internally
           out_of_limits(string, LINT_MIN, LINT_MAX);
