@@ -25,9 +25,22 @@
 #import <string.h>
 #import "NSNumber+IECC.h"
 
-/**
- *
- */
+// Verifies if `string' starts with `start', case insensitive
+static const char *starts_with(char const *string, char const *start) {
+  for((void)0; *string && *start; string++, start++) {
+    if(tolower(*string) != tolower(*start)) {
+      return NULL;
+    };
+  };
+  
+  if(*start == (char)0) {
+    return string;
+  };
+  
+  return NULL;
+};
+
+//
 @implementation NSNumber(IECC)
   + (instancetype)numberWithIECString: (const char *)string {
     // We know our string is well-formed already, if it exists...
@@ -36,6 +49,40 @@
       const char *hash = strchr(string, '#');
       
       if(hash) {
+        
+        char *hash;
+        
+        if((hash == starts_with("sint"))) {
+          
+        };
+        
+        if((hash == starts_with("int"))) {
+          
+        };
+        
+        if((hash == starts_with("dint"))) {
+          
+        };
+        
+        if((hash == starts_with("lint"))) {
+          
+        };
+        
+        if((hash == starts_with("usint"))) {
+          
+        };
+        
+        if((hash == starts_with("uint"))) {
+          
+        };
+        
+        if((hash == starts_with("udint"))) {
+          
+        };
+        
+        if((hash == starts_with("ulint"))) {
+          
+        };
         
       } else {
         // We should have a common number here
