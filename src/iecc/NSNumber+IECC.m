@@ -21,6 +21,8 @@
 * You should have received a copy of the GNU General Public License along with *
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
+#import <assert.h>
+#import <string.h>
 #import "NSNumber+IECC.h"
 
 /**
@@ -28,7 +30,28 @@
  */
 @implementation NSNumber(IECC)
   + (instancetype)numberWithIECString: (const char *)string {
+    // We know our string is well-formed already, if it exists...
     if(string) {
+      
+      const char *hash = strchr(string, '#');
+      
+      if(hash) {
+        
+      } else {
+        // We should have a common number here
+        char *end;
+        long long result = strtoll(string, &end, 10);
+        
+        assert("Internal compiler error." && (*end == (char)0));
+        
+        if(errno == ERANGE) {
+          // We are using bools to represent overflow internally
+          return [NSNumber numberWithBool: YES];
+        } else {
+          // Read the number as a long long :)
+          return [NSNumber numberWithLongLong: result];
+        };
+      };
       
     };
     
