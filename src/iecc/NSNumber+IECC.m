@@ -23,7 +23,12 @@
 *******************************************************************************/
 #import <assert.h>
 #import <string.h>
+#import <limits.h>
 #import "NSNumber+IECC.h"
+
+//
+#define LINT_MIN -9223372036854775808ll
+#define LINT_MAX  9223372036854775807ll
 
 // Verifies if `string' starts with `start', case insensitive
 static const char *starts_with(char const *string, char const *start) {
@@ -41,6 +46,12 @@ static const char *starts_with(char const *string, char const *start) {
 };
 
 //
+static void out_of_limits(const char *string, int64_t lower, uint64_t higher) {
+  printf("Numeric literal %s out of range! It should be between %"PRId64" and %"
+         PRIu64".\n", string, lower, higher);
+};
+
+//
 @implementation NSNumber(IECC)
   + (instancetype)numberWithIECString: (const char *)string {
     // We know our string is well-formed already, if it exists...
@@ -52,37 +63,54 @@ static const char *starts_with(char const *string, char const *start) {
         
         char *hash;
         
-        if((hash == starts_with("sint"))) {
+        if((hash = starts_with(string, "16"))) {
           
         };
         
-        if((hash == starts_with("int"))) {
+        if((hash = starts_with(string, "8"))) {
           
         };
         
-        if((hash == starts_with("dint"))) {
+        if((hash = starts_with(string, "2"))) {
           
         };
         
-        if((hash == starts_with("lint"))) {
+        char *end;
+        long long result = strtoll(string, &end, 10);
+        
+        if((hash = starts_with(string, "sint"))) {
           
         };
         
-        if((hash == starts_with("usint"))) {
+        if((hash = starts_with(string, "int"))) {
           
         };
         
-        if((hash == starts_with("uint"))) {
+        if((hash = starts_with(string, "dint"))) {
           
         };
         
-        if((hash == starts_with("udint"))) {
+        if((hash = starts_with(string, "lint"))) {
           
         };
         
-        if((hash == starts_with("ulint"))) {
+        if((hash = starts_with(string, "usint"))) {
           
         };
+        
+        if((hash = starts_with(string, "uint"))) {
+          
+        };
+        
+        if((hash = starts_with(string, "udint"))) {
+          
+        };
+        
+        if((hash = starts_with(string, "ulint"))) {
+          
+        };
+        
+        assert("Internal compiler error." && NULL);
         
       } else {
         // We should have a common number here
@@ -93,6 +121,7 @@ static const char *starts_with(char const *string, char const *start) {
         
         if(errno == ERANGE) {
           // We are using bools to represent overflow internally
+          out_of_limits(string, LINT_MIN, LINT_MAX);
           return [NSNumber numberWithBool: YES];
         } else {
           // Read the number as a long long :)
