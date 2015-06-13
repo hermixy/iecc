@@ -24,6 +24,7 @@
 #import <assert.h>
 #import <string.h>
 #import <limits.h>
+#import <tgmath.h>
 #import "NSNumber+IECC.h"
 
 // Our known bounds (taken from table 10 of the standard)
@@ -166,32 +167,64 @@ static NSNumber *untyped_int_literal(const char *string) {
   };
   
   //
-  + add: (NSNumber *)other {
+  - (_Bool)isFloatingPoint {
+    const char *type = self.objCType;
     
+    return type[0] == 'f' || type[1] == 'd';
   };
   
   //
-  + sub: (NSNumber *)other {
+  - add: (NSNumber *)other {
+    if(self.isFloatingPoint || other.isFloatingPoint) {
+      return @(self.doubleValue + other.doubleValue);
+    };
     
+    return @(self.longLongValue + other.longLongValue);
   };
   
   //
-  + div: (NSNumber *)other {
+  - sub: (NSNumber *)other {
+    if(self.isFloatingPoint || other.isFloatingPoint) {
+      return @(self.doubleValue - other.doubleValue);
+    };
     
+    return @(self.longLongValue - other.longLongValue);
   };
   
   //
-  + mul: (NSNumber *)other {
+  - div: (NSNumber *)other {
+    if(self.isFloatingPoint || other.isFloatingPoint) {
+      return @(self.doubleValue / other.doubleValue);
+    };
     
+    return @(self.longLongValue / other.longLongValue);
   };
   
   //
-  + mod: (NSNumber *)other {
+  - mul: (NSNumber *)other {
+    if(self.isFloatingPoint || other.isFloatingPoint) {
+      return @(self.doubleValue * other.doubleValue);
+    };
     
+    return @(self.longLongValue * other.longLongValue);
   };
   
   //
-  + pow: (NSNumber *)other {
+  - mod: (NSNumber *)other {
+    if(self.isFloatingPoint || other.isFloatingPoint) {
+      // We don't have modulos for floating points! Should we?
+      return nil;
+    };
     
+    return @(self.longLongValue % other.longLongValue);
+  };
+  
+  //
+  - pow: (NSNumber *)other {
+    if(self.isFloatingPoint || other.isFloatingPoint) {
+      return @(pow(self.doubleValue, other.doubleValue));
+    };
+    
+    return @(pow(self.longLongValue, other.longLongValue));
   };
 @end

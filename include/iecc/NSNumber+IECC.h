@@ -29,10 +29,11 @@
  */
 @interface NSNumber(IECC)
   + (instancetype)numberWithIECString: (const char *)string;
-  + add: (NSNumber *)other;
-  + sub: (NSNumber *)other;
-  + div: (NSNumber *)other;
-  + mul: (NSNumber *)other;
-  + mod: (NSNumber *)other;
-  + pow: (NSNumber *)other;
+  - (_Bool)isFloatingPoint;
+  - add: (NSNumber *)other;
+  - sub: (NSNumber *)other;
+  - div: (NSNumber *)other;
+  - mul: (NSNumber *)other;
+  - mod: (NSNumber *)other;
+  - pow: (NSNumber *)other;
 @end

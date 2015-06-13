@@ -39,6 +39,7 @@
 */
 %code requires {
   #import "IECCBinder.h"
+  #import "NSNumber+IECC.h"
   
   //
   #define YY_DECL int yylex(IECCBinder *binder)
@@ -1418,15 +1419,33 @@ constant_expr: constant_expr TOK_OR constant_expr
              | constant_expr TOK_LESS_EQ constant_expr
              | constant_expr TOK_MORE_EQ constant_expr
              | constant_expr TOK_PLUS constant_expr
+             {
+               $$ = [$1 add: $3];
+             }
              | constant_expr TOK_MINUS constant_expr
-             | constant_expr TOK_TIMES constant_expr
-             | constant_expr TOK_DIV constant_expr
+             {
+               $$ = [$1 sub: $3];
+             }
+             | constant_expr TOK_TIMES constant_expr {
+               $$ = [$1 mul: $3];
+             }
+             | constant_expr TOK_DIV constant_expr {
+               $$ = [$1 div: $3];
+             }
              | constant_expr TOK_MOD constant_expr
+             {
+               $$ = [$1 mod: $3];
+             }
              | constant_expr TOK_POWER constant_expr
+             {
+               $$ = [$1 pow: $3];
+             }
              | TOK_MINUS constant_expr %prec TOK_UNARY_MINUS
              | TOK_PLUS constant_expr %prec TOK_UNARY_PLUS
              | TOK_NOT constant_expr
-             | numeric_literal;
+             | numeric_literal {
+               $$ = $1;
+             };
 
 /******************************************************************************/
 /*                    Instruction List Programming Language                   */
