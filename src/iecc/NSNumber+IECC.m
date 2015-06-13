@@ -144,6 +144,7 @@ static NSNumber *untyped_int_literal(const char *string) {
 
 //
 @implementation NSNumber(IECC)
+  //
   + (instancetype)numberWithIECString: (const char *)string {
     // Just to be sure...
     assert("Internal compiler error." && string);
@@ -158,5 +159,35 @@ static NSNumber *untyped_int_literal(const char *string) {
     } else {
       return untyped_int_literal(string);
     };
+  };
+  
+  //
+  + add: (NSNumber)other {
+    
+  };
+  
+  //
+  + sub: (NSNumber)other {
+    
+  };
+  
+  //
+  + div: (NSNumber)other {
+    
+  };
+  
+  //
+  + mul: (NSNumber)other {
+    
+  };
+  
+  //
+  + mod: (NSNumber)other {
+    
+  };
+  
+  //
+  + pow: (NSNumber)other {
+    
   };
 @end
