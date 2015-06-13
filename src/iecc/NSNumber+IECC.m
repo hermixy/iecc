@@ -63,96 +63,100 @@ static void out_of_limits(const char *string, int64_t lower, uint64_t higher) {
 };
 
 //
-@implementation NSNumber(IECC)
-  + (instancetype)numberWithIECString: (const char *)string {
-    // We know our string is well-formed already, if it exists...
-    if(string) {
+static NSNumber *typed_int_literal(const char *string) {
+  // Lets table our possible conversions
+  static const struct {
+    const char *name;
+    _Bool is_signed;
+    int64_t lower_limit;
+    uint64_t higher_limit;
+  } data[] = {
+    {"sint",  YES, IEC_SINT_MIN, IEC_SINT_MAX},
+    {"int",   YES, IEC_INT_MIN,  IEC_INT_MAX},
+    {"dint",  YES, IEC_DINT_MIN, IEC_DINT_MAX},
+    {"lint",  YES, IEC_LINT_MIN, IEC_LINT_MAX},
+    {"usint", NO,  0,            IEC_USINT_MAX},
+    {"uint",  NO,  0,            IEC_UINT_MAX},
+    {"udint", NO,  0,            IEC_UDINT_MAX},
+    {"ulint", NO,  0,            IEC_ULINT_MAX},
+  };
+  
+  // Try each conversion!
+  for(int i = 0; i < sizeof(data) / sizeof(*data); i++) {
+    // Get our type prefix
+    const char *hash = starts_with(string, data[i].name);
+    if(hash) {
       
-      const char *hash = strchr(string, '#');
+      // Check for correctness...
+      assert("Internal compiler error." && '#' == *hash);
       
-      if(hash) {
-        
-        const char *hash;
-        
-        /* TODO: different bases! */
-        
-        // All known conversions
-        static const struct {
-          const char *name;
-          _Bool is_signed;
-          int64_t lower_limit;
-          uint64_t higher_limit;
-        } data[] = {
-          {"sint",  YES, IEC_SINT_MIN, IEC_SINT_MAX},
-          {"int",   YES, IEC_INT_MIN,  IEC_INT_MAX},
-          {"dint",  YES, IEC_DINT_MIN, IEC_DINT_MAX},
-          {"lint",  YES, IEC_LINT_MIN, IEC_LINT_MAX},
-          {"usint", NO,  0,            IEC_USINT_MAX},
-          {"uint",  NO,  0,            IEC_UINT_MAX},
-          {"udint", NO,  0,            IEC_UDINT_MAX},
-          {"ulint", NO,  0,            IEC_ULINT_MAX},
-        };
-        
-        // Try each conversion!
-        for(int i = 0; i < sizeof(data) / sizeof(*data); i++) {
-          if((hash = starts_with(string, data[i].name))) {
-            
-            // Check for correctness...
-            assert("Internal compiler error." && '#' == *hash);
-            
-            // Lets try our cast
-            char *end;
-            union {
-              long long ll;
-              unsigned long long ull;
-            } result;
-            
-            // There are two possible conversions!
-            if(data[i].is_signed) {
-              result.ll = strtoll(hash + 1, &end, 10);
-            } else {
-              result.ull = strtoull(hash + 1, &end, 10);
-            };
-            
-            // Check for correctness...
-            assert("Internal compiler error." && (*end == (char)0));
-            
-            // Did we get a range error?
-            if(errno == ERANGE) {
-              // We are using bools to represent overflow internally
-              out_of_limits(string, data[i].lower_limit, data[i].higher_limit);
-              return [NSNumber numberWithBool: YES];
-            };
-            
-            // We have our number now :)
-            return data[i].is_signed ? @(result.ll) : @(result.ull);
-          };
-        };
-        
-        // We shouldn't fall here!
-        assert(!"Internal compiler error.");
-        
+      // Lets try our cast
+      char *end;
+      union {
+        long long ll;
+        unsigned long long ull;
+      } result;
+      
+      // There are two possible conversions!
+      if(data[i].is_signed) {
+        result.ll = strtoll(hash + 1, &end, 10);
       } else {
-        // We should have a common number here
-        char *end;
-        long long result = strtoll(string, &end, 10);
-        
-        // Our string should be well behaved, so...
-        assert("Internal compiler error." && (*end == (char)0));
-        
-        // Did we get a range error?
-        if(errno == ERANGE) {
-          // We are using bools to represent overflow internally
-          out_of_limits(string, IEC_LINT_MIN, IEC_LINT_MAX);
-          return [NSNumber numberWithBool: YES];
-        };
-        
-        // Convert the number!
-        return @(result);
+        result.ull = strtoull(hash + 1, &end, 10);
       };
       
+      // Check for correctness...
+      assert("Internal compiler error." && (*end == (char)0));
+      
+      // Did we get a range error?
+      if(errno == ERANGE) {
+        // We are using bools to represent overflow internally
+        out_of_limits(string, data[i].lower_limit, data[i].higher_limit);
+        return [NSNumber numberWithBool: YES];
+      };
+      
+      // We have our number now :)
+      return data[i].is_signed ? @(result.ll) : @(result.ull);
     };
+  };
+  
+  // We shouldn't fall here!
+  assert(!"Internal compiler error.");
+};
+
+//
+static NSNumber *untyped_int_literal(const char *string) {
+  char *end;
+  long long result = strtoll(string, &end, 10);
+  
+  // Our string should be well behaved, so...
+  assert("Internal compiler error." && (*end == (char)0));
+  
+  // Did we get a range error?
+  if(errno == ERANGE) {
+    // We are using bools to represent overflow internally
+    out_of_limits(string, IEC_LINT_MIN, IEC_LINT_MAX);
+    return [NSNumber numberWithBool: YES];
+  };
+  
+  // Convert the number!
+  return @(result);
+};
+
+//
+@implementation NSNumber(IECC)
+  + (instancetype)numberWithIECString: (const char *)string {
+    // Just to be sure...
+    assert("Internal compiler error." && string);
     
-    return [NSNumber numberWithInt: 0];
+    // Do we have a hash sign in our string?
+    const char *hash = strchr(string, '#');
+    if(hash) {
+      /* TODO: different bases! */
+      
+      // All known conversions
+      return typed_int_literal(string);
+    } else {
+      return untyped_int_literal(string);
+    };
   };
 @end
