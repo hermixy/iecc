@@ -109,9 +109,11 @@ static NSNumber *typed_int_literal(const char *string) {
       
       // Did we get a range error?
       if(errno == ERANGE) {
-        // We are using bools to represent overflow internally
+        // Warn the user
         out_of_limits(string, data[i].lower_limit, data[i].higher_limit);
-        return [NSNumber numberWithBool: YES];
+        
+        // Return our minimum/maximum
+        return @(hash[1] == '-' ? data[i].lower_limit : data[i].higher_limit);
       };
       
       // We have our number now :)
@@ -133,9 +135,11 @@ static NSNumber *untyped_int_literal(const char *string) {
   
   // Did we get a range error?
   if(errno == ERANGE) {
-    // We are using bools to represent overflow internally
+    // Warn the user
     out_of_limits(string, IEC_LINT_MIN, IEC_LINT_MAX);
-    return [NSNumber numberWithBool: YES];
+    
+    // Return our minimum/maxium
+    return @(*string == '-' ? IEC_LINT_MIN : IEC_LINT_MAX);
   };
   
   // Convert the number!
@@ -162,32 +166,32 @@ static NSNumber *untyped_int_literal(const char *string) {
   };
   
   //
-  + add: (NSNumber)other {
+  + add: (NSNumber *)other {
     
   };
   
   //
-  + sub: (NSNumber)other {
+  + sub: (NSNumber *)other {
     
   };
   
   //
-  + div: (NSNumber)other {
+  + div: (NSNumber *)other {
     
   };
   
   //
-  + mul: (NSNumber)other {
+  + mul: (NSNumber *)other {
     
   };
   
   //
-  + mod: (NSNumber)other {
+  + mod: (NSNumber *)other {
     
   };
   
   //
-  + pow: (NSNumber)other {
+  + pow: (NSNumber *)other {
     
   };
 @end
