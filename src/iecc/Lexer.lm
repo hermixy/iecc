@@ -1,0 +1,533 @@
+/*******************************************************************************
+* Project: IECC (IEC 61131-3 Languages Compiler for Arduino).                  *
+* Authors: Paulo H. Torrens <paulotorrens AT gnu DOT org>.                     *
+* License: GNU GPLv3+.                                                         *
+*                                                                              *
+* Language: Flex -> (Legacy) Objective-C.                                      *
+* Description: Compiler lexer file.                                            *
+********************************************************************************
+* Copyright (C) 2015 - Paulo H. Torrens. All rights reserved.                  *
+*                                                                              *
+* This program is free software: you can redistribute it and/or modify it      *
+* under the terms of the GNU General Public License as published by the Free   *
+* Software Foundation, either version 3 of the License, or (at your option)    *
+* any later version.                                                           *
+*                                                                              *
+* This program is distributed in the hope that it will be useful, but WITHOUT  *
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or        *
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for     *
+* more details.                                                                *
+*                                                                              *
+* You should have received a copy of the GNU General Public License along with *
+* this program. If not, see <http://www.gnu.org/licenses/>.                    *
+*******************************************************************************/
+/* Small header */
+%{
+  #import "IECCBinder.h"
+  #import "NSNumber+IECC.h"
+  
+  // Header made by Bison:
+  #import "./Parser.tmp.h"
+  
+  //
+  #define YY_USER_ACTION yy_user_action();
+  
+  //
+  #define PUSH for(int i = 0; !i; i = (yy_push_state(i), 1)) i =
+  #define POP yy_pop_state()
+  
+  /**
+   *
+   */
+  int yycolumn = 1;
+  
+  /**
+   *
+   */
+  void yy_user_action(void);
+  
+  /**
+   *
+   */
+  int get_identifier_token(IECCDataType *);
+%}
+
+/* Options */
+%option 7bit
+%option stack
+%option noyywrap
+%option yylineno
+%option case-insensitive
+
+/* Constants, taken from several places */
+letter                [A-Z]
+digit                 [0-9]
+bit                   [01]
+octal_digit           [0-7]
+hex_digit             [0-9A-F]
+gibberish             [A-Z0-9_][A-Z0-9_#]*
+
+/* Identifier, taken from table 2 of the standard */
+identifier            (_?{letter}(_?({letter}|{digit}))*)
+
+/* Numeric literal, taken from table 5 of the standard */
+int_literal           ({int_header}?{any_int})
+int_header            ({int_type_name}"#")
+int_type_name         (U?[SDL]?INT)
+any_int               ({signed_int}|{binary_int}|{octal_int}|{hex_int})
+unsigned_int          ({digit}(_?{digit})*)
+signed_int            ([+-]?{unsigned_int})
+binary_int            ("2#"(_?{bit})+)
+octal_int             ("8#"(_?{octal_digit})+)
+hex_int               ("16#"(_?{hex_digit})+)
+real_literal          ({real_header}?{signed_int}"."{fraction})
+real_header           ({real_type_name}"#")
+real_type_name        (L?REAL)
+fraction              ({unsigned_int}("E"{signed_int})?)
+bit_str_literal       ({bit_str_header}?{any_int})
+bit_str_header        ({bit_str_type_name}"#")
+bit_str_type_name     (BOOL|BYTE|[DL]?WORD)
+bool_literal          ({bool_header}?({bit}|TRUE|FALSE))
+bool_header           ({bool_type_name}"#")
+bool_type_name        (BOOL)
+
+/* Character string literals, taken from table 6 of the standard */
+char_literal          ({char_header}?{char_str})
+char_header           (STRING"#")
+char_str              ({single_byte_char_str}|{double_byte_char_str})
+single_byte_char_str  ([']("$"[^\r\n]|[^'$\r\n])*['])
+double_byte_char_str  (["]("$"[^\r\n]|[^"$\r\n])*["])
+
+/* Duration, date and time of day literals, taken from tables 8 and 9 of... */
+time_literal          ({duration}|{tod}|{date}|{dt})
+duration              ({time_header}[+-]?{interval})
+time_header           ({time_type_name}"#")
+time_type_name        (L?T(IME)?)
+fix_point             ({unsigned_int}("."{unsigned_int})?)
+interval              ({days}|{hours}|{minutes}|{secs}|{msecs}|{usecs}|{nsecs})
+days                  ({fix_point}"d"|({unsigned_int}d_?)?{hours}?)
+hours                 ({fix_point}"h"|({unsigned_int}h_?)?{minutes}?)
+minutes               ({fix_point}"m"|({unsigned_int}m_?)?{secs}?)
+secs                  ({fix_point}"s"|({unsigned_int}s_?)?{msecs}?)
+msecs                 ({fix_point}"ms"|({unsigned_int}ms_?)?{usecs}?)
+usecs                 ({fix_point}"us"|({unsigned_int}us_?)?{nsecs}?)
+nsecs                 ({fix_point}"ns")
+tod                   ({tod_header}{daytime})
+tod_header            ({tod_type_name}"#")
+tod_type_name         (L?TIME_OF_DAY|L?TOD)
+daytime               ({unsigned_int}":"{unsigned_int}":"{fix_point})
+date                  ({date_header}{date_literal})
+date_header           ({date_type_name}"#")
+date_type_name        (L?D(ATE)?)
+date_literal          ({unsigned_int}"-"{unsigned_int}"-"{unsigned_int})
+dt                    ({dt_header}{date_literal}"-"{daytime})
+dt_header             ({dt_type_name}"#")
+dt_type_name          (L?DATE_AND_TIME|L?DT)
+
+/* Directly represented variables, taken from table 16 of the standard */
+direct_variable       ("%"[IQM]{direct_variable_size}?{direct_variable_addr})
+direct_variable_size  ([XBWDL])
+direct_variable_addr  ({unsigned_int}("."{unsigned_int})*)
+direct_variable_part  ("%"[IQM]"*")
+
+/* Register variables, a little extension of ours! :) */
+register_variable     ("%"R{direct_variable_size}?{identifier})
+
+/* */
+%s COMMENT_SLASH
+%s COMMENT_PAREN
+
+/******************************************************************************/
+%%
+[\r]?[\n]                               yycolumn = 1;
+[ \t]+                                  (void)0;
+
+<COMMENT_SLASH>{
+  /* We are inside a / * comment block
+     which means we can nest it. */
+  "/*"                                  PUSH COMMENT_SLASH;
+  
+  "*/"                                  POP;
+  
+  .                                     (void)0;
+}
+
+<COMMENT_PAREN>{
+  /* We are inside a ( * comment block
+     which means we can nest it. */
+  "(*"                                  PUSH COMMENT_PAREN;
+  
+  "*)"                                  POP;
+  
+  .                                     (void)0;
+}
+
+<INITIAL>{  
+  /* Comments, taken from table 3 of
+     the standard */
+  "/*"                                  PUSH COMMENT_SLASH;
+  "(*"                                  PUSH COMMENT_PAREN;
+  "//"[^\r\n]*                          (void)0;
+  
+  /* Pragmas, taken from table 4 of the
+     standard */
+  \{[^}]*\}                             {
+                                          // TODO
+                                        };
+  
+  /* Numeric literals, taken from table
+     5 of the standard */
+  {unsigned_int}                        {
+                                          // Parse our number
+                                          yylval = [NSNumber
+                                            numberWithIECString: yytext
+                                          ];
+                                          return TOK_UNSIGNED_INT_LITERAL;
+                                        };
+  
+  {signed_int}                          {
+                                          // Parse our number
+                                          yylval = [NSNumber
+                                            numberWithIECString: yytext
+                                          ];
+                                          return TOK_SIGNED_INT_LITERAL;
+                                        };
+  
+  {int_literal}                         {
+                                          // Parse our number
+                                          yylval = [NSNumber
+                                            numberWithIECString: yytext
+                                          ];
+                                          return TOK_GENERIC_INT_LITERAL;
+                                        };
+  
+  {int_literal}{gibberish}              {
+                                          // TODO
+                                          return TOK_INVALID;
+                                        };
+  
+  {real_literal}                        {
+                                          // TODO
+                                          return TOK_REAL_LITERAL;
+                                        };
+  
+  {real_literal}{gibberish}             {
+                                          // TODO
+                                          return TOK_INVALID;
+                                        };
+  
+  {bit_str_literal}                     {
+                                          // TODO
+                                          return TOK_BIT_STR_LITERAL;
+                                        };
+  
+  {bit_str_literal}{gibberish}          {
+                                          // TODO
+                                          return TOK_INVALID;
+                                        };
+  
+  {bool_literal}                        {
+                                          // TODO
+                                          return TOK_BOOL_LITERAL;
+                                        };
+  
+  {bool_literal}{gibberish}             {
+                                          // TODO
+                                          return TOK_INVALID;
+                                        };
+  
+  /* Character string literals, taken
+     from table 6 of the standard */
+  {single_byte_char_str}                {
+                                          // TODO
+                                          return TOK_UNTYPED_CHAR_LITERAL_S;
+                                        };
+  
+  {double_byte_char_str}                {
+                                          // TODO
+                                          return TOK_UNTYPED_CHAR_LITERAL_D;
+                                        };
+  
+  {char_literal}                        {
+                                          // TODO
+                                          return TOK_TYPED_CHAR_LITERAL;
+                                        };
+  
+  /* Duration, date and time of day
+     literals, taken from table 8 and 9
+     of the standard */
+  {time_literal}                        {
+                                          // TODO
+                                          return TOK_TIME_LITERAL;
+                                        };
+  
+  /* Elementary data types, taken from
+     table 10 of the standard */
+  SINT                                  return TOK_SINT;
+  INT                                   return TOK_INT;
+  DINT                                  return TOK_DINT;
+  LINT                                  return TOK_LINT;
+  USINT                                 return TOK_USINT;
+  UINT                                  return TOK_UINT;
+  UDINT                                 return TOK_UDINT;
+  ULINT                                 return TOK_ULINT;
+  REAL                                  return TOK_REAL;
+  LREAL                                 return TOK_LREAL;
+  BOOL                                  return TOK_BOOL;
+  BYTE                                  return TOK_BYTE;
+  WORD                                  return TOK_WORD;
+  DWORD                                 return TOK_DWORD;
+  LWORD                                 return TOK_LWORD;
+  STRING                                return TOK_STRING;
+  WSTRING                               return TOK_WSTRING;
+  CHAR                                  return TOK_CHAR;
+  WCHAR                                 return TOK_WCHAR;
+  DATE                                  return TOK_DATE;
+  LDATE                                 return TOK_LDATE;
+  TIME                                  return TOK_TIME;
+  LTIME                                 return TOK_LTIME;
+  TIME_OF_DAY                           return TOK_TOD;
+  TOD                                   return TOK_TOD;
+  LTOD                                  return TOK_LTOD;
+  DATE_AND_TIME                         return TOK_DT;
+  DT                                    return TOK_DT;
+  LDT                                   return TOK_LDT;
+  
+  /* User-defined data types, taken
+     from table 10 of the standard */
+  TYPE                                  return TOK_TYPE;
+  END_TYPE                              return TOK_END_TYPE;
+  ARRAY                                 return TOK_ARRAY;
+  OF                                    return TOK_OF;
+  STRUCT                                return TOK_STRUCT;
+  END_STRUCT                            return TOK_END_STRUCT;
+  OVERLAP                               return TOK_OVERLAP;
+  
+  /* References, taken from table 12 of
+     the standard */
+  REF_TO                                return TOK_REF_TO;
+  REF                                   return TOK_REF;
+  NULL                                  return TOK_NULL;
+  
+  /* Variables, taken from tables 13
+     and 14 of the standard */
+  THIS                                  return TOK_THIS;
+  VAR                                   return TOK_VAR;
+  VAR_INPUT                             return TOK_VAR_INPUT;
+  VAR_OUTPUT                            return TOK_VAR_OUTPUT;
+  VAR_IN_OUT                            return TOK_VAR_IN_OUT;
+  VAR_TEMP                              return TOK_VAR_TEMP;
+  VAR_EXTERNAL                          return TOK_VAR_EXTERNAL;
+  VAR_GLOBAL                            return TOK_VAR_GLOBAL;
+  RETAIN                                return TOK_RETAIN;
+  NON_RETAIN                            return TOK_NON_RETAIN;
+  END_VAR                               return TOK_END_VAR;
+  R_EDGE                                return TOK_R_EDGE;
+  F_EDGE                                return TOK_F_EDGE;
+  CONSTANT                              return TOK_CONSTANT;
+  AT                                    return TOK_AT;
+  
+  /* Directly represented variables,
+     taken from table 16 of the
+     standard, and register directs */
+  {direct_variable_part}                {
+                                          // TODO
+                                          return TOK_DIRECT_VARIABLE_PART;
+                                        };
+  
+  {direct_variable}                     {
+                                          // TODO
+                                          return TOK_DIRECT_VARIABLE;
+                                        };
+  
+  {register_variable}                   {
+                                          // TODO
+                                          return TOK_DIRECT_VARIABLE;
+                                        };
+  
+  /* Function declarations, taken from
+     table 19 of the standard */
+  FUNCTION                              return TOK_FUNCTION;
+  END_FUNCTION                          return TOK_END_FUNCTION;
+  
+  /* Function block type and instance
+     declarations, taken from tables 40
+     and 41 */
+  FUNCTION_BLOCK                        return TOK_FUNCTION_BLOCK;
+  END_FUNCTION_BLOCK                    return TOK_FUNCTION_BLOCK;
+  FINAL                                 return TOK_FINAL;
+  ABSTRACT                              return TOK_ABSTRACT;
+  EXTENDS                               return TOK_EXTENDS;
+  IMPLEMENTS                            return TOK_IMPLEMENTS;
+  METHOD                                return TOK_METHOD;
+  END_METHOD                            return TOK_END_METHOD;
+  OVERRIDE                              return TOK_OVERRIDE;
+  
+  /* Program declaration, taken from
+     table 47 of the standard */
+  PROGRAM                               return TOK_PROGRAM;
+  END_PROGRAM                           return TOK_END_PROGRAM;
+  VAR_ACCESS                            return TOK_VAR_ACCESS;
+  
+  /* Classes and method calls, taken
+     tables 48 and 50 of the
+     standard */
+  CLASS                                 return TOK_CLASS;
+  END_CLASS                             return TOK_END_CLASS;
+  INTERFACE                             return TOK_INTERFACE;
+  END_INTERFACE                         return TOK_END_INTERFACE;
+  PUBLIC                                return TOK_PUBLIC;
+  PROTECTED                             return TOK_PROTECTED;
+  PRIVATE                               return TOK_PRIVATE;
+  INTERNAL                              return TOK_INTERNAL;
+  
+  /* Configuration and resources, taken
+     from table 62 of the standard */
+  CONFIGURATION                         return TOK_CONFIGURATION;
+  END_CONFIGURATION                     return TOK_END_CONFIGURATION;
+  RESOURCE                              return TOK_RESOURCE;
+  END_RESOURCE                          return TOK_END_RESOURCE;
+  ON                                    return TOK_ON;
+  READ_WRITE                            return TOK_READ_WRITE;
+  READ_ONLY                             return TOK_READ_ONLY;
+  TASK                                  return TOK_TASK;
+  SINGLE                                return TOK_SINGLE;
+  INTERVAL                              return TOK_INTERVAL;
+  PRIORITY                              return TOK_PRIORITY;
+  WITH                                  return TOK_WITH;
+  VAR_CONFIG                            return TOK_VAR_CONFIG;
+  
+  /* Table 64 of the standard */
+  NAMESPACE                             return TOK_NAMESPACE;
+  END_NAMESPACE                         return TOK_END_NAMESPACE;
+  USING                                 return TOK_USING;
+  
+  /* Placeholders! TODO! TODO! TODO! */
+  aaaaa                                 return TOK_LANG_LD;
+  bbbbb                                 return TOK_LANG_FB;
+  ccccc                                 return TOK_LANG_IL;
+  ddddd                                 return TOK_LANG_ST;
+  eeeee                                 return TOK_LANG_SFC;
+  fffff                                 return TOK_LANG_C;
+  
+  /* Cause why not? */
+  TODO                                  return TOK_TODO;
+  
+  /* Borrowed from the Structured Text
+     language while we are in "mixed"
+     mode */
+  OR                                    return TOK_OR;
+  XOR                                   return TOK_XOR;
+  AND|"&"                               return TOK_AND;
+  MOD                                   return TOK_MOD;
+  NOT                                   return TOK_NOT;
+  "="                                   return TOK_EQUAL;
+  "<>"                                  return TOK_DIFF;
+  "<"                                   return TOK_LESS;
+  ">"                                   return TOK_MORE;
+  "<="                                  return TOK_LESS_EQ;
+  ">="                                  return TOK_MORE_EQ;
+  "+"                                   return TOK_PLUS;
+  "-"                                   return TOK_MINUS;
+  "*"                                   return TOK_TIMES;
+  "/"                                   return TOK_DIV;
+  "**"                                  return TOK_POWER;
+  
+  /* Identifier, taken from table 2 of
+     the standard; had to be in the end
+     after we already lexed keywords */
+  {identifier}                          {
+                                          // First, copy the identifier
+                                          yylval = @(yytext);
+                                          
+                                          // Then check if it's declared already
+                                          id bound = [binder type: yylval];
+                                          
+                                          //
+                                          return get_identifier_token(bound);
+                                        };
+  
+  {identifier}{gibberish}               {
+                                          // TODO
+                                          // We could be TOK_ENUM_LITERAL here!
+                                          return TOK_INVALID;
+                                        };
+  
+  /* Operators and stuff */
+  "["                                   return '[';
+  "]"                                   return ']';
+  ":"                                   return ':';
+  "("                                   return '(';
+  ")"                                   return ')';
+  ","                                   return ',';
+  "^"                                   return '^';
+  ";"                                   return ';';
+  ":="                                  return TOK_SET;
+  ".."                                  return TOK_DOTDOT;
+  "=>"                                  return TOK_FAT_ARROW;
+}
+
+.                                       {
+                                          // TODO: warn about unknown char
+                                        };
+
+%%
+
+// Custom user action after getting a token
+void yy_user_action(void) {
+  // Keep track of our position on yylloc (used by bison)
+  yylloc.first_line = yylloc.last_line = yylineno;
+  yylloc.first_column = yycolumn;
+  yycolumn += yyleng;
+  yylloc.last_column = yycolumn;
+  
+  // TODO: save current lexer AND parser state on a tree!
+};
+
+//
+int get_identifier_token(IECCDataType *type) {
+  // Helper macros :)
+  #define SIMPLE(c) if([type isKindOfClass: [IECC ## c class]]) \
+                      return TOK_SIMPLE_TYPENAME;
+  
+  #define STRING(c) if([type isKindOfClass: [IECC ## c class]]) \
+                      return TOK_STRING_TYPENAME;
+  
+  // Simple types...
+  SIMPLE(Bool);
+  SIMPLE(SInt);
+  SIMPLE(Int);
+  SIMPLE(DInt);
+  SIMPLE(LInt);
+  SIMPLE(USInt);
+  SIMPLE(UInt);
+  SIMPLE(UDInt);
+  SIMPLE(ULInt);
+  SIMPLE(Real);
+  SIMPLE(LReal);
+  SIMPLE(Time);
+  SIMPLE(LTime);
+  SIMPLE(Date);
+  //~ SIMPLE(LDate);
+  SIMPLE(TimeOfDay);
+  SIMPLE(LTimeOfDay);
+  SIMPLE(DateAndTime);
+  SIMPLE(LDateAndTime);
+  SIMPLE(Byte);
+  SIMPLE(Word);
+  SIMPLE(DWord);
+  SIMPLE(LWord);
+  
+  // String types...
+  STRING(Char);
+  STRING(WChar);
+  STRING(String);
+  STRING(WString);
+  
+  // Clean things up...
+  #undef SIMPLE
+  #undef STRING
+  
+  // If not found, this is an (unbound) identifier!
+  return TOK_IDENTIFIER;
+};

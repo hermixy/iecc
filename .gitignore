@@ -1,0 +1,11 @@
+*.o
+*.dep
+*.tmp
+*.tmp.*
+*.exe
+*.dll
+*.so
+*.dylib
+*.hex
+/iecc
+tmp/
