@@ -243,7 +243,7 @@ static NSNumber *untyped_int_literal(const char *string) {
       return nil;
     };
     
-    return @(self.longLongValue | other.longLongValue);
+    return @(self.longLongValue || other.longLongValue);
   };
   
   //
@@ -253,7 +253,7 @@ static NSNumber *untyped_int_literal(const char *string) {
       return nil;
     };
     
-    return @(self.longLongValue ^ other.longLongValue);
+    return @((!!self.longLongValue) ^ (!!other.longLongValue));
   };
   
   //
@@ -263,7 +263,7 @@ static NSNumber *untyped_int_literal(const char *string) {
       return nil;
     };
     
-    return @(self.longLongValue & other.longLongValue);
+    return @(self.longLongValue && other.longLongValue);
   };
   
   //

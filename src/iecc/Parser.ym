@@ -548,8 +548,13 @@ simple_spec: elem_type_name {
              $$ = [binder type:$1];
            };
 
-simple_set_value: /* empty */
-                | TOK_SET constant_expr;
+simple_set_value: /* empty */ {
+                  $$ = nil;
+                }
+                | TOK_SET constant_expr {
+                  $$ = $2;
+                  NSLog(@"$2 = %@", $2);
+                };
 
 subrange_type_decl: simple_identifier ':' subrange_spec_init;
 
