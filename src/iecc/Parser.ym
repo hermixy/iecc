@@ -1455,9 +1455,15 @@ constant_expr: constant_expr TOK_OR constant_expr {
              | constant_expr TOK_POWER constant_expr {
                $$ = [$1 pow: $3];
              }
-             | TOK_MINUS constant_expr %prec TOK_UNARY_MINUS
-             | TOK_PLUS constant_expr %prec TOK_UNARY_PLUS
-             | TOK_NOT constant_expr
+             | TOK_MINUS constant_expr %prec TOK_UNARY_MINUS {
+               $$ = [$2 minus];
+             }
+             | TOK_PLUS constant_expr %prec TOK_UNARY_PLUS {
+               $$ = $2;
+             }
+             | TOK_NOT constant_expr {
+               $$ = [$2 not];
+             }
              | '(' constant_expr ')' {
                $$ = $2;
              }

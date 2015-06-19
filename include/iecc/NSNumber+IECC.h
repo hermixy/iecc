@@ -46,4 +46,5 @@
   - less_eq_than: (NSNumber *)other;
   - more_than: (NSNumber *)other;
   - more_eq_than: (NSNumber *)other;
+  - minus;
 @end

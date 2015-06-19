@@ -328,4 +328,13 @@ static NSNumber *untyped_int_literal(const char *string) {
     
     return @(self.longLongValue >= other.longLongValue);
   };
+  
+  //
+  - minus {
+    if(self.isFloatingPoint) {
+      return @(-self.doubleValue);
+    };
+    
+    return @(-self.longLongValue);
+  };
 @end
