@@ -127,11 +127,36 @@ static NSNumber *typed_int_literal(const char *string) {
 };
 
 //
+static NSNumber *untyped_real_literal(const char *string) {
+  char *end;
+  double result = strtod(string, &end);
+  
+  // Our string should be well behaved, so...
+  assert("Internal compiler error." && (*end == (char)0));
+  
+  // Did we get a range error?
+  if(errno == ERANGE) {
+    // Warn the user
+    //out_of_limits(string, IEC_LINT_MIN, IEC_LINT_MAX);
+    
+    // Return our minimum/maxium
+    return @(*string == '-' ? -0.0: +0.0);
+  };
+  
+  // Convert the number!
+  return @(result);
+};
+
+//
 static NSNumber *untyped_int_literal(const char *string) {
   char *end;
   long long result = strtoll(string, &end, 10);
   
   // Our string should be well behaved, so...
+  if(*end == '.') {
+    // Might be decimal
+    return untyped_real_literal(string);
+  };
   assert("Internal compiler error." && (*end == (char)0));
   
   // Did we get a range error?
@@ -170,7 +195,10 @@ static NSNumber *untyped_int_literal(const char *string) {
   - (_Bool)isFloatingPoint {
     const char *type = self.objCType;
     
-    return type[0] == 'f' || type[1] == 'd';
+    // It might be a float...
+    return type[0] == 'f'
+        // Or be a double...
+        || type[0] == 'd';
   };
   
   //

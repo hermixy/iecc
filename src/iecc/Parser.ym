@@ -301,14 +301,26 @@ constant: numeric_literal
         | bit_str_literal
         | bool_literal;
 
-numeric_literal: int_literal
-               | real_literal;
+numeric_literal: int_literal {
+                 $$ = $1;
+               }
+               | real_literal {
+                 $$ = $1;
+               };
 
-int_literal: TOK_SIGNED_INT_LITERAL
-           | TOK_UNSIGNED_INT_LITERAL
-           | TOK_GENERIC_INT_LITERAL;
+int_literal: TOK_SIGNED_INT_LITERAL {
+             $$ = $1;
+           }
+           | TOK_UNSIGNED_INT_LITERAL {
+             $$ = $1;
+           }
+           | TOK_GENERIC_INT_LITERAL {
+             $$ = $1;
+           };
 
-real_literal: TOK_REAL_LITERAL;
+real_literal: TOK_REAL_LITERAL {
+                $$ = $1;
+              };
 
 bit_str_literal: TOK_BIT_STR_LITERAL;
 
@@ -553,7 +565,7 @@ simple_set_value: /* empty */ {
                 }
                 | TOK_SET constant_expr {
                   $$ = $2;
-                  NSLog(@"$2 = %@", $2);
+                  // TODO: check for expression errors!
                 };
 
 subrange_type_decl: simple_identifier ':' subrange_spec_init;
