@@ -235,4 +235,34 @@ static NSNumber *untyped_int_literal(const char *string) {
     
     return @(pow(self.longLongValue, other.longLongValue));
   };
+  
+  //
+  - or: (NSNumber *)other {
+    if(self.isFloatingPoint || other.isFloatingPoint) {
+      // We don't have boolean expressions for floating points! Should we?
+      return nil;
+    };
+    
+    return @(self.longLongValue | other.longLongValue);
+  };
+  
+  //
+  - xor: (NSNumber *)other {
+    if(self.isFloatingPoint || other.isFloatingPoint) {
+      // We don't have boolean expressions for floating points! Should we?
+      return nil;
+    };
+    
+    return @(self.longLongValue ^ other.longLongValue);
+  };
+  
+  //
+  - and: (NSNumber *)other {
+    if(self.isFloatingPoint || other.isFloatingPoint) {
+      // We don't have boolean expressions for floating points! Should we?
+      return nil;
+    };
+    
+    return @(self.longLongValue & other.longLongValue);
+  };
 @end

@@ -36,4 +36,7 @@
   - mul: (NSNumber *)other;
   - mod: (NSNumber *)other;
   - pow: (NSNumber *)other;
+  - or: (NSNumber *)other;
+  - xor: (NSNumber *)other;
+  - and: (NSNumber *)other;
 @end
