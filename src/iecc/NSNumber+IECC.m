@@ -265,4 +265,67 @@ static NSNumber *untyped_int_literal(const char *string) {
     
     return @(self.longLongValue & other.longLongValue);
   };
+  
+  //
+  - not {
+    if(self.isFloatingPoint) {
+      return @(!self.doubleValue);
+    };
+    
+    return @(!self.longLongValue);
+  };
+  
+  //
+  - equal: (NSNumber *)other {
+    if(self.isFloatingPoint || other.isFloatingPoint) {
+      return @(self.doubleValue == other.doubleValue);
+    };
+    
+    return @(self.longLongValue == other.longLongValue);
+  };
+  
+  //
+  - different: (NSNumber *)other {
+    if(self.isFloatingPoint || other.isFloatingPoint) {
+      return @(self.doubleValue != other.doubleValue);
+    };
+    
+    return @(self.longLongValue != other.longLongValue);
+  };
+  
+  //
+  - less_than: (NSNumber *)other {
+    if(self.isFloatingPoint || other.isFloatingPoint) {
+      return @(self.doubleValue < other.doubleValue);
+    };
+    
+    return @(self.longLongValue < other.longLongValue);
+  };
+  
+  //
+  - less_eq_than: (NSNumber *)other {
+    if(self.isFloatingPoint || other.isFloatingPoint) {
+      return @(self.doubleValue <= other.doubleValue);
+    };
+    
+    return @(self.longLongValue <= other.longLongValue);
+  };
+  
+  //
+  - more_than: (NSNumber *)other {
+    if(self.isFloatingPoint || other.isFloatingPoint) {
+      return @(self.doubleValue > other.doubleValue);
+    };
+    
+    return @(self.longLongValue > other.longLongValue);
+  };
+  
+  //
+  - more_eq_than: (NSNumber *)other {
+    if(self.isFloatingPoint || other.isFloatingPoint) {
+      return @(self.doubleValue >= other.doubleValue);
+    };
+    
+    return @(self.longLongValue >= other.longLongValue);
+  };
 @end

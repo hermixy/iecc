@@ -1419,12 +1419,24 @@ constant_expr: constant_expr TOK_OR constant_expr {
              | constant_expr TOK_AND constant_expr {
                $$ = [$1 and: $3];
              }
-             | constant_expr TOK_EQUAL constant_expr
-             | constant_expr TOK_DIFF constant_expr
-             | constant_expr TOK_LESS constant_expr
-             | constant_expr TOK_MORE constant_expr
-             | constant_expr TOK_LESS_EQ constant_expr
-             | constant_expr TOK_MORE_EQ constant_expr
+             | constant_expr TOK_EQUAL constant_expr {
+               $$ = [$1 equal: $3];
+             }
+             | constant_expr TOK_DIFF constant_expr {
+               $$ = [$1 different: $3];
+             }
+             | constant_expr TOK_LESS constant_expr {
+               $$ = [$1 less_than: $3];
+             }
+             | constant_expr TOK_MORE constant_expr {
+               $$ = [$1 more_than: $3];
+             }
+             | constant_expr TOK_LESS_EQ constant_expr {
+               $$ = [$1 less_eq_than: $3];
+             }
+             | constant_expr TOK_MORE_EQ constant_expr {
+               $$ = [$1 more_eq_than: $3];
+             }
              | constant_expr TOK_PLUS constant_expr {
                $$ = [$1 add: $3];
              }

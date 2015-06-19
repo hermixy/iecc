@@ -39,4 +39,11 @@
   - or: (NSNumber *)other;
   - xor: (NSNumber *)other;
   - and: (NSNumber *)other;
+  - not;
+  - equal: (NSNumber *)other;
+  - different: (NSNumber *)other;
+  - less_than: (NSNumber *)other;
+  - less_eq_than: (NSNumber *)other;
+  - more_than: (NSNumber *)other;
+  - more_eq_than: (NSNumber *)other;
 @end
