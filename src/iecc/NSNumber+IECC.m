@@ -194,10 +194,18 @@ static NSNumber *untyped_int_literal(const char *string) {
   //
   - div: (NSNumber *)other {
     if(self.isFloatingPoint || other.isFloatingPoint) {
-      return @(self.doubleValue / other.doubleValue);
+      double aux = other.doubleValue;
+      if(aux) {
+        return @(self.doubleValue / aux);
+      };
+      return nil;
     };
     
-    return @(self.longLongValue / other.longLongValue);
+    long long aux = other.longLongValue;
+    if(aux) {
+      return @(self.longLongValue / aux);
+    };
+    return nil;
   };
   
   //
