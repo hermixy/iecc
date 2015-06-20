@@ -24,5 +24,12 @@
 #import "types/IECCAnyString.h"
 
 @implementation IECCAnyString
+  - (void)setStringSize: (NSNumber *)value {
+    number = [value retain];
+  };
   
+  - (void)dealloc {
+    [number autorelease];
+    [super dealloc];
+  };
 @end

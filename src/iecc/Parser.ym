@@ -442,11 +442,11 @@ bit_str_type_name: TOK_BOOL {
 
 string_type_name: TOK_STRING string_size {
                   $$ = IECCString.new;
-                  // TODO: set string size!!!
+                  [$$ setStringSize: $2];
                 }
                 | TOK_WSTRING string_size {
                   $$ = IECCWString.new;
-                  // TODO: set string size!!!
+                  [$$ setStringSize: $2];
                 }
                 | TOK_CHAR {
                   $$ = IECCChar.new;
@@ -459,7 +459,7 @@ string_size: /* empty */ {
              $$ = nil;
            }
            | '[' TOK_UNSIGNED_INT_LITERAL ']' {
-             // TODO!!!
+             $$ = $2;
            };
 
 date_type_name: TOK_DATE {
@@ -550,7 +550,7 @@ simple_type_decl: simple_identifier ':' simple_spec_init {
                 };
 
 simple_spec_init: simple_spec simple_set_value {
-                  $$ = @[$1 /*, TODO */];
+                  $$ = @[$1, $2];
                 };
 
 simple_spec: elem_type_name {
@@ -561,11 +561,15 @@ simple_spec: elem_type_name {
            };
 
 simple_set_value: /* empty */ {
-                  $$ = nil;
+                  $$ = [NSNull null];
                 }
                 | TOK_SET constant_expr {
-                  $$ = $2;
-                  // TODO: check for expression errors!
+                  if($2) {
+                    $$ = $2;
+                  } else {
+                    // TODO: warn about expression error!
+                    $$ = [NSNull null];
+                  };
                 };
 
 subrange_type_decl: simple_identifier ':' subrange_spec_init;
@@ -1421,7 +1425,9 @@ sfc: TOK_LANG_SFC;
 other_languages: TOK_LANG_C;
 
 /* constant_expr: TOK_TODO; */
-expression: TOK_TODO;
+expression: TOK_TODO
+          | constant_expr;
+
 multibit_part_access: TOK_TODO;
 
 /******************************************************************************/

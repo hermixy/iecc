@@ -33,8 +33,12 @@
     #define __IECC_INCLUDE_IECC_TYPES_ANY_STRING_DEFINE__
     
     //
-    @interface IECCAnyString: IECCAnyChars
-      
+    @interface IECCAnyString: IECCAnyChars {
+        @private
+          NSNumber *number;
+      };
+      - (void)setStringSize: (NSNumber *)value;
+      - (void)dealloc;
     @end
   #endif
 #endif
