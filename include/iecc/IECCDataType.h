@@ -32,7 +32,7 @@
 * This class is abstract and should not be created by itself.
 */
 @interface IECCDataType: NSObject
-  
+  - (instancetype)init;
 @end
 
 //

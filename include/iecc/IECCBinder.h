@@ -47,12 +47,14 @@
   /**
    *
    */
-  - (void)declareType:(NSString *)name as:(IECCDataType *)type atLine:(int)pos;
+  - (IECCDataType *)declareType: (NSString *)name
+                             as: (IECCDataType *)type
+                         atLine: (int)pos;
   
   /**
    *
    */
-  - (__weak IECCDataType *)type:(NSString *)name;
+  - (__weak IECCDataType *)type: (NSString *)name;
   
   /**
    *

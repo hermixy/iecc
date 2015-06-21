@@ -43,13 +43,19 @@
   };
   
   //
-  - (void)declareType:(NSString *)name as:(IECCDataType *)type atLine:(int)pos {
-    [dictionary setObject:@[type, @(pos)] forKey:name.capitalizedString];
+  - (IECCDataType *)declareType: (NSString *)name
+                             as: (IECCDataType *)type
+                         atLine: (int)pos
+  {
+    [dictionary setObject: @[type, @(pos)] forKey: name.capitalizedString];
+    return type;
   };
   
   //
-  - (__weak IECCDataType *)type:(NSString *)name {
-    id obj = [[dictionary objectForKey: name.capitalizedString] objectAtIndex: 0];
+  - (__weak IECCDataType *)type: (NSString *)name {
+    id obj = [[dictionary objectForKey: name.capitalizedString]
+               objectAtIndex: 0
+             ];
     
     if([obj isKindOfClass: IECCDataType.class]) {
       return obj;

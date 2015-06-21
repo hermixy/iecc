@@ -24,5 +24,10 @@
 #import "IECCDataType.h"
 
 @implementation IECCDataType
-
+  //
+  - (instancetype)init {
+    [super init];
+    [self autorelease];
+    return self;
+  };
 @end

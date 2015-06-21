@@ -541,12 +541,11 @@ type_decl: simple_type_decl     %dprec 50
 
 simple_type_decl: simple_identifier ':' simple_spec_init {
                   // Simple type declaration
-                  [binder
-                    declareType:$1
-                             as:[$3 objectAtIndex:0]
-                             atLine:@1.first_line
+                  $$ = [binder
+                    declareType: $1
+                             as: [$3 objectAtIndex:0] // TODO: default value
+                         atLine: @1.first_line
                   ];
-                  
                 };
 
 simple_spec_init: simple_spec simple_set_value {
@@ -554,10 +553,10 @@ simple_spec_init: simple_spec simple_set_value {
                 };
 
 simple_spec: elem_type_name {
-             $$ = [$1 autorelease];
+             $$ = $1;
            }
            | simple_type_access {
-             $$ = [binder type:$1];
+             $$ = [binder type: $1];
            };
 
 simple_set_value: /* empty */ {
@@ -684,7 +683,12 @@ struct_elem_set_value: TOK_SET constant_expr
                      | TOK_SET ref_value;
 
 str_type_decl: simple_identifier ':' string_type_name string_set_value {
-               // TODO!!!
+               // String type declaration
+               $$ = [binder
+                 declareType: $1
+                          as: $3 // TODO: default value
+                      atLine: @1.first_line
+               ];
              };
 
 string_set_value: /* empty */
