@@ -25,10 +25,6 @@
 // Header made by Bison:
 #import "./Parser.tmp.h"
 
-@interface NSDictionary (subscripting)
-- (id)objectForKeyedSubscript:(id)key;
-@end
-
 //
 @implementation IECCBinder
   // Init our object

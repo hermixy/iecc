@@ -308,15 +308,19 @@ numeric_literal: int_literal {
                  $$ = $1;
                };
 
-int_literal: TOK_SIGNED_INT_LITERAL {
-             $$ = $1;
-           }
-           | TOK_UNSIGNED_INT_LITERAL {
+int_literal: signed_int {
              $$ = $1;
            }
            | TOK_GENERIC_INT_LITERAL {
              $$ = $1;
            };
+
+signed_int: TOK_SIGNED_INT_LITERAL {
+            $$ = $1;
+          }
+          | TOK_UNSIGNED_INT_LITERAL {
+            $$ = $1;
+          };
 
 real_literal: TOK_REAL_LITERAL {
                 $$ = $1;
@@ -531,12 +535,12 @@ data_type_decl: TOK_TYPE type_decl_list TOK_END_TYPE;
 type_decl_list: type_decl ';'
               | type_decl_list type_decl ';';
 
-type_decl: simple_type_decl     %dprec 50
+type_decl: simple_type_decl %dprec 50 /* higher precedence... */
          | subrange_type_decl
          | enum_type_decl
          | array_type_decl
          | struct_type_decl
-         | str_type_decl        %dprec 10
+         | str_type_decl %dprec 10 /* ...over string decl */
          | ref_type_decl;
 
 simple_type_decl: simple_identifier ':' simple_spec_init {
@@ -557,6 +561,8 @@ simple_spec: elem_type_name {
            }
            | simple_type_access {
              $$ = [binder type: $1];
+             assert("Internal compiler error" && $$ != nil);
+             assert("Internal compiler error" && $$ != [NSNull null]);
            };
 
 simple_set_value: /* empty */ {
@@ -580,8 +586,12 @@ subrange_spec: int_type_name '(' subrange ')'
 
 subrange: constant_expr TOK_DOTDOT constant_expr;
 
-subrange_set_value: /* empty */
-                  | TOK_SET TOK_SIGNED_INT_LITERAL;
+subrange_set_value: /* empty */ {
+                    $$ = [NSNull null];
+                  }
+                  | TOK_SET signed_int {
+                    $$ = $2;
+                  };
 
 enum_type_decl: simple_identifier ':' enum_type_decl2;
 

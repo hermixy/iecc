@@ -35,7 +35,7 @@
   - (instancetype)init;
 @end
 
-//
+// Import the standard data types
 #import "types/IECCAny.h"
 #import "types/IECCAnyBit.h"
 #import "types/IECCAnyChar.h"
