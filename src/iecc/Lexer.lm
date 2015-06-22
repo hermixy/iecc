@@ -527,6 +527,10 @@ int get_identifier_token(IECCDataType *type) {
   STRING(String);
   STRING(WString);
   
+  // Derived data types...
+  if([type isKindOfClass: [IECCSubrange class]])
+    return TOK_SUBRANGE_TYPENAME;
+  
   // Clean things up...
   #undef SIMPLE
   #undef STRING

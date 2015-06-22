@@ -35,7 +35,7 @@
   - (instancetype)init;
 @end
 
-// Import the standard data types
+// Import generic data types
 #import "types/IECCAny.h"
 #import "types/IECCAnyBit.h"
 #import "types/IECCAnyChar.h"
@@ -51,6 +51,8 @@
 #import "types/IECCAnySigned.h"
 #import "types/IECCAnyString.h"
 #import "types/IECCAnyUnsigned.h"
+
+// Import elementary data types
 #import "types/IECCBool.h"
 #import "types/IECCByte.h"
 #import "types/IECCChar.h"
@@ -77,3 +79,6 @@
 #import "types/IECCWChar.h"
 #import "types/IECCWord.h"
 #import "types/IECCWString.h"
+
+// Import derived data types
+#import "types/IECCSubrange.h"

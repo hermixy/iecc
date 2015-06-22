@@ -547,7 +547,7 @@ simple_type_decl: simple_identifier ':' simple_spec_init {
                   // Simple type declaration
                   $$ = [binder
                     declareType: $1
-                             as: [$3 objectAtIndex:0] // TODO: default value
+                             as: [$3 objectAtIndex: 0] // TODO: default value
                          atLine: @1.first_line
                   ];
                 };
@@ -577,14 +577,32 @@ simple_set_value: /* empty */ {
                   };
                 };
 
-subrange_type_decl: simple_identifier ':' subrange_spec_init;
+subrange_type_decl: simple_identifier ':' subrange_spec_init {
+                    // Subrange type declaration
+                    printf("Declaring subrange type!\n");
+                    $$ = [binder
+                      declareType: $1
+                               as: [$3 objectAtIndex: 0] // TODO: default value
+                           atLine: @1.first_line
+                    ];
+                  };
 
-subrange_spec_init: subrange_spec subrange_set_value;
+subrange_spec_init: subrange_spec subrange_set_value {
+                    // TODO: check if value is on range!
+                    $$ = @[$1, $2];
+                  };
 
-subrange_spec: int_type_name '(' subrange ')'
-             | subrange_type_access;
+subrange_spec: int_type_name '(' subrange ')' {
+               $$ = [IECCSubrange subrangeWithRange: $3];
+             }
+             | subrange_type_access {
+               $$ = $1;
+             };
 
-subrange: constant_expr TOK_DOTDOT constant_expr;
+subrange: constant_expr TOK_DOTDOT constant_expr {
+            // TODO: check if both bounds are integers!
+            $$ = @[$1, $3];
+          };
 
 subrange_set_value: /* empty */ {
                     $$ = [NSNull null];
