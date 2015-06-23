@@ -24,19 +24,33 @@
 #import "types/IECCEnum.h"
 
 @implementation IECCEnum
+  //
+  - (instancetype)init {
+    if((self = super.init)) {
+      self->values = NSMutableDictionary.new;
+    };
+    return self;
+  };
+  
+  //
   + (IECCEnum *)enumWithValues: (NSArray *)values {
     IECCEnum *myself = self.new;
     
     if(myself) {
-      
-      printf("Making enum with values:\n");
-      
+      // So far we really don't care for values
       for(id i in values) {
-        printf("  * %s\n", [[i description] UTF8String]);
+        [myself->values setObject: [i objectAtIndex: 1]
+                           forKey: [i objectAtIndex: 0]];
       };
       
     };
     
     return myself;
+  };
+  
+  //
+  - (void)dealloc {
+    [values autorelease];
+    [super dealloc];
   };
 @end

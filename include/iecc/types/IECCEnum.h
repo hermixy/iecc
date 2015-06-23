@@ -33,8 +33,13 @@
     #define __IECC_INCLUDE_IECC_TYPES_ENUM_DEFINE__
     
     //
-    @interface IECCEnum: IECCAnyDerived
+    @interface IECCEnum: IECCAnyDerived {
+        @private
+          NSMutableDictionary *values;
+      };
+      - (instancetype)init;
       + (IECCEnum *)enumWithValues: (NSArray *)values;
+      - (void)dealloc;
     @end
   #endif
 #endif
