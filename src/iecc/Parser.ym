@@ -637,8 +637,12 @@ named_set_value: /* empty */ {
                  $$ = $2;
                };
 
-enum_value_spec_list: enum_value_spec
-                    | enum_value_spec_list ',' enum_value_spec;
+enum_value_spec_list: enum_value_spec {
+                      $$ = @[$1];
+                    }
+                    | enum_value_spec_list ',' enum_value_spec {
+                      $$ = [$1 arrayByAddingObject: $3];
+                    };
 
 enum_spec_init: enum_spec_init_type named_set_value {
                 $$ = @[$1 /* TODO */];
@@ -651,11 +655,19 @@ enum_spec_init_type: '(' enum_value_spec_list ')' {
                      $$ = $1;
                    };
 
-enum_value_spec: simple_identifier enum_value_spec_set_value;
+enum_value_spec: simple_identifier enum_value_spec_set_value {
+                 $$ = @[$1, $2];
+               };
 
-enum_value_spec_set_value: /* empty */
-                         | TOK_SET int_literal
-                         | TOK_SET constant_expr;
+enum_value_spec_set_value: /* empty */ {
+                           $$ = [NSNull null];
+                         }
+                         | TOK_SET int_literal {
+                           $$ = $2;
+                         }
+                         | TOK_SET constant_expr {
+                           $$ = $2;
+                         };
 
 enum_value: simple_identifier /* TODO!!! */
           | TOK_ENUM_LITERAL;

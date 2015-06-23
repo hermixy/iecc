@@ -47,7 +47,7 @@
   void yy_user_action(void);
   
   /**
-   *
+   * TODO: doc me (it will set yylval!)
    */
   int get_identifier_token(IECCDataType *);
 %}

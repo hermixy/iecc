@@ -28,7 +28,13 @@
     IECCEnum *myself = self.new;
     
     if(myself) {
-      // TODO
+      
+      printf("Making enum with values:\n");
+      
+      for(id i in values) {
+        printf("  * %s\n", [[i description] UTF8String]);
+      };
+      
     };
     
     return myself;
