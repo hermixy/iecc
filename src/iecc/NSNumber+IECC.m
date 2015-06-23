@@ -25,6 +25,8 @@
 #import <string.h>
 #import <limits.h>
 #import <tgmath.h>
+#import <ctype.h>
+#import <Foundation/Foundation.h>
 #import "NSNumber+IECC.h"
 
 // Our known bounds (taken from table 10 of the standard)
@@ -64,7 +66,7 @@ static void out_of_limits(const char *string, int64_t lower, uint64_t higher) {
 };
 
 //
-static NSNumber *typed_int_literal(const char *string) {
+static NSNumber *typed_numeric_literal(const char *string) {
   // Lets table our possible conversions
   static const struct {
     const char *name;
@@ -79,7 +81,8 @@ static NSNumber *typed_int_literal(const char *string) {
     {"usint", NO,  0,            IEC_USINT_MAX},
     {"uint",  NO,  0,            IEC_UINT_MAX},
     {"udint", NO,  0,            IEC_UDINT_MAX},
-    {"ulint", NO,  0,            IEC_ULINT_MAX},
+    {"ulint", NO,  0,            IEC_ULINT_MAX}
+    // TODO: real values
   };
   
   // Try each conversion!
@@ -148,15 +151,17 @@ static NSNumber *untyped_real_literal(const char *string) {
 };
 
 //
-static NSNumber *untyped_int_literal(const char *string) {
+static NSNumber *untyped_numeric_literal(const char *string, int base) {
   char *end;
-  long long result = strtoll(string, &end, 10);
+  long long result = strtoll(string, &end, base);
   
   // Our string should be well behaved, so...
-  if(*end == '.') {
-    // Might be decimal
+  if(base == 10 && *end == '.') {
+    // It's a decimal number
     return untyped_real_literal(string);
   };
+  
+  // Just to be sure!
   assert("Internal compiler error." && (*end == (char)0));
   
   // Did we get a range error?
@@ -173,22 +178,40 @@ static NSNumber *untyped_int_literal(const char *string) {
 };
 
 //
+static NSNumber *numeric_literal(const char *string) {
+  // Do we have a hash sign in our string?
+  const char *hash = strchr(string, '#');
+  if(hash) {
+    // Our hash can't be the first character!
+    assert("Internal compiler error." && string != hash);
+    
+    // We have a base or a type?
+    switch(hash[-1]) {
+      case '6':
+        // Hexadecimal number
+        return untyped_numeric_literal(hash + 1, 16);
+      case '8':
+        // Octal number
+        return untyped_numeric_literal(hash + 1, 8);
+      default:
+        // All known conversions
+        return typed_numeric_literal(string);
+    };
+  };
+  
+  // Raw integer (or real), base 10
+  return untyped_numeric_literal(string, 10);
+};
+
+//
 @implementation NSNumber(IECC)
   //
   + (instancetype)numberWithIECString: (const char *)string {
     // Just to be sure...
     assert("Internal compiler error." && string);
     
-    // Do we have a hash sign in our string?
-    const char *hash = strchr(string, '#');
-    if(hash) {
-      /* TODO: different bases! */
-      
-      // All known conversions
-      return typed_int_literal(string);
-    } else {
-      return untyped_int_literal(string);
-    };
+    // Do our stuff
+    return numeric_literal(string);
   };
   
   //

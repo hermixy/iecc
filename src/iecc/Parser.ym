@@ -662,9 +662,10 @@ enum_value_spec: simple_identifier enum_value_spec_set_value {
 enum_value_spec_set_value: /* empty */ {
                            $$ = [NSNull null];
                          }
-                         | TOK_SET int_literal {
+                         /* Not needed! ;) */
+                         /*| TOK_SET int_literal {
                            $$ = $2;
-                         }
+                         } */
                          | TOK_SET constant_expr {
                            $$ = $2;
                          };
