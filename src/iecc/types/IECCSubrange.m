@@ -25,7 +25,7 @@
 
 @implementation IECCSubrange
   //
-  + subrangeWithRange: (NSArray *)range {
+  + (IECCSubrange *)subrangeWithRange: (NSArray *)range {
     IECCSubrange *myself = self.new;
     
     if(myself) {

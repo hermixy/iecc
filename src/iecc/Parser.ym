@@ -512,9 +512,13 @@ simple_type_access: TOK_SIMPLE_TYPENAME {
                     $$ = $1;
                   };
 
-subrange_type_access: TOK_SUBRANGE_TYPENAME;
+subrange_type_access: TOK_SUBRANGE_TYPENAME {
+                      $$ = $1;
+                    };
 
-enum_type_access: TOK_ENUM_TYPENAME;
+enum_type_access: TOK_ENUM_TYPENAME {
+                    $$ = $1;
+                  };
 
 array_type_access: TOK_ARRAY_TYPENAME;
 
@@ -535,12 +539,12 @@ data_type_decl: TOK_TYPE type_decl_list TOK_END_TYPE;
 type_decl_list: type_decl ';'
               | type_decl_list type_decl ';';
 
-type_decl: simple_type_decl %dprec 50 /* higher precedence... */
+type_decl: simple_type_decl %dprec 50
          | subrange_type_decl
          | enum_type_decl
          | array_type_decl
          | struct_type_decl
-         | str_type_decl %dprec 10 /* ...over string decl */
+         | str_type_decl %dprec 10
          | ref_type_decl;
 
 simple_type_decl: simple_identifier ':' simple_spec_init {
@@ -560,9 +564,7 @@ simple_spec: elem_type_name {
              $$ = $1;
            }
            | simple_type_access {
-             $$ = [binder type: $1];
-             assert("Internal compiler error" && $$ != nil);
-             assert("Internal compiler error" && $$ != [NSNull null]);
+             $$ = $1;
            };
 
 simple_set_value: /* empty */ {
@@ -579,7 +581,6 @@ simple_set_value: /* empty */ {
 
 subrange_type_decl: simple_identifier ':' subrange_spec_init {
                     // Subrange type declaration
-                    printf("Declaring subrange type!\n");
                     $$ = [binder
                       declareType: $1
                                as: [$3 objectAtIndex: 0] // TODO: default value
@@ -611,23 +612,44 @@ subrange_set_value: /* empty */ {
                     $$ = $2;
                   };
 
-enum_type_decl: simple_identifier ':' enum_type_decl2;
+enum_type_decl: simple_identifier ':' enum_type_decl2 {
+                // Enum or "type with named value" type declaration
+                $$ = [binder
+                  declareType: $1
+                           as: [$3 objectAtIndex: 0] // TODO: default value
+                       atLine: @1.first_line
+                ];
+              };
 
-enum_type_decl2: elem_type_name_opt named_spec_init
-               | enum_spec_init;
+enum_type_decl2: elem_type_name_opt named_spec_init %dprec 10 {
+                 // TODO
+               }
+               | enum_spec_init %dprec 50 {
+                 $$ = $1;
+               };
 
 named_spec_init: '(' enum_value_spec_list ')' named_set_value;
 
-named_set_value: /* empty */
-               | TOK_SET enum_value;
+named_set_value: /* empty */ {
+                 $$ = [NSNull null];
+               }
+               | TOK_SET enum_value {
+                 $$ = $2;
+               };
 
 enum_value_spec_list: enum_value_spec
                     | enum_value_spec_list ',' enum_value_spec;
 
-enum_spec_init: enum_spec_init_type named_set_value;
+enum_spec_init: enum_spec_init_type named_set_value {
+                $$ = @[$1 /* TODO */];
+              };
 
-enum_spec_init_type: '(' enum_value_spec_list ')'
-                   | enum_type_access;
+enum_spec_init_type: '(' enum_value_spec_list ')' {
+                     $$ = [IECCEnum enumWithValues: $2];
+                   }
+                   | enum_type_access {
+                     $$ = $1;
+                   };
 
 enum_value_spec: simple_identifier enum_value_spec_set_value;
 
@@ -635,7 +657,7 @@ enum_value_spec_set_value: /* empty */
                          | TOK_SET int_literal
                          | TOK_SET constant_expr;
 
-enum_value: simple_identifier
+enum_value: simple_identifier /* TODO!!! */
           | TOK_ENUM_LITERAL;
 
 array_type_decl: simple_identifier ':' array_spec_init;

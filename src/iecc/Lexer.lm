@@ -440,11 +440,8 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
      the standard; had to be in the end
      after we already lexed keywords */
   {identifier}                          {
-                                          // First, copy the identifier
-                                          yylval = @(yytext);
-                                          
                                           // Then check if it's declared already
-                                          id bound = [binder type: yylval];
+                                          id bound = [binder type: @(yytext)];
                                           
                                           //
                                           return get_identifier_token(bound);
@@ -489,6 +486,9 @@ void yy_user_action(void) {
 
 //
 int get_identifier_token(IECCDataType *type) {
+  // Sets our value to our type
+  yylval = type;
+  
   // Helper macros :)
   #define SIMPLE(c) if([type isKindOfClass: [IECC ## c class]]) \
                       return TOK_SIMPLE_TYPENAME;
@@ -527,14 +527,19 @@ int get_identifier_token(IECCDataType *type) {
   STRING(String);
   STRING(WString);
   
-  // Derived data types...
+  // Subrange data types...
   if([type isKindOfClass: [IECCSubrange class]])
     return TOK_SUBRANGE_TYPENAME;
+  
+  // Enum and data with named values data types...
+  if([type isKindOfClass: [IECCEnum class]])
+    return TOK_ENUM_TYPENAME;
   
   // Clean things up...
   #undef SIMPLE
   #undef STRING
   
   // If not found, this is an (unbound) identifier!
+  yylval = @(yytext);
   return TOK_IDENTIFIER;
 };

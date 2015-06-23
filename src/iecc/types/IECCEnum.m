@@ -21,25 +21,16 @@
 * You should have received a copy of the GNU General Public License along with *
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
-//
-#ifndef __IECC_INCLUDE_IECC_TYPES_SUBRANGE_INCLUDE__
-  #define __IECC_INCLUDE_IECC_TYPES_SUBRANGE_INCLUDE__
-  #include "types/IECCAnyDerived.h"
-#endif
+#import "types/IECCEnum.h"
 
-//
-#ifndef __IECC_INCLUDE_IECC_TYPES_SUBRANGE_DEFINE__
-  #ifdef __IECC_INCLUDE_IECC_TYPES_ANY_DERIVED_DEFINE__
-    #define __IECC_INCLUDE_IECC_TYPES_SUBRANGE_DEFINE__
+@implementation IECCEnum
+  + (IECCEnum *)enumWithValues: (NSArray *)values {
+    IECCEnum *myself = self.new;
     
-    //
-    @interface IECCSubrange: IECCAnyDerived {
-        @private
-          NSNumber *lower;
-          NSNumber *higher;
-      };
-      
-      + (IECCSubrange *)subrangeWithRange: (NSArray *)range;
-    @end
-  #endif
-#endif
+    if(myself) {
+      // TODO
+    };
+    
+    return myself;
+  };
+@end

@@ -22,24 +22,19 @@
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
 //
-#ifndef __IECC_INCLUDE_IECC_TYPES_SUBRANGE_INCLUDE__
-  #define __IECC_INCLUDE_IECC_TYPES_SUBRANGE_INCLUDE__
+#ifndef __IECC_INCLUDE_IECC_TYPES_ENUM_INCLUDE__
+  #define __IECC_INCLUDE_IECC_TYPES_ENUM_INCLUDE__
   #include "types/IECCAnyDerived.h"
 #endif
 
 //
-#ifndef __IECC_INCLUDE_IECC_TYPES_SUBRANGE_DEFINE__
+#ifndef __IECC_INCLUDE_IECC_TYPES_ENUM_DEFINE__
   #ifdef __IECC_INCLUDE_IECC_TYPES_ANY_DERIVED_DEFINE__
-    #define __IECC_INCLUDE_IECC_TYPES_SUBRANGE_DEFINE__
+    #define __IECC_INCLUDE_IECC_TYPES_ENUM_DEFINE__
     
     //
-    @interface IECCSubrange: IECCAnyDerived {
-        @private
-          NSNumber *lower;
-          NSNumber *higher;
-      };
-      
-      + (IECCSubrange *)subrangeWithRange: (NSArray *)range;
+    @interface IECCEnum: IECCAnyDerived
+      + (IECCEnum *)enumWithValues: (NSArray *)values;
     @end
   #endif
 #endif

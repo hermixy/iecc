@@ -81,4 +81,5 @@
 #import "types/IECCWString.h"
 
 // Import derived data types
+#import "types/IECCEnum.h"
 #import "types/IECCSubrange.h"
