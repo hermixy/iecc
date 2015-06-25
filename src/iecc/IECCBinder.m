@@ -76,8 +76,9 @@
   };
   
   //
-  - (void)setEnumValue: (NSString *)name as: (NSString *)value {
+  - (void)setEnumValue: (NSString *)name as: (NSNumber *)value {
     printf("Defining value [%s]!\n", name.description.UTF8String);
+    [[enumerations lastObject] addValue: name as: value];
   };
   
   // Cleanup memory

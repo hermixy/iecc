@@ -24,7 +24,6 @@
 *******************************************************************************/
 #pragma once
 #import <Foundation/Foundation.h>
-#import "IECCFunctionBlock.h"
 
 /**
  * Program unit for the IEC 61131-3 languages.

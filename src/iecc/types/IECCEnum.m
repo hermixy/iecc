@@ -33,19 +33,23 @@
   };
   
   //
-  + (IECCEnum *)enumWithValues: (NSArray *)values {
-    IECCEnum *myself = self.new;
+  //~ + (IECCEnum *)enumWithValues: (NSArray *)values {
+    //~ IECCEnum *myself = self.new;
     
-    if(myself) {
-      // So far we really don't care for values
-      for(id i in values) {
-        [myself->values setObject: [i objectAtIndex: 1]
-                           forKey: [i objectAtIndex: 0]];
-      };
+    //~ if(myself) {
+      //~ for(id i in values) {
+        //~ [myself->values setObject: [i objectAtIndex: 1]
+                           //~ forKey: [i objectAtIndex: 0]];
+      //~ };
       
-    };
+    //~ };
     
-    return myself;
+    //~ return myself;
+  //~ };
+  
+  //
+  - (void)addValue: (NSString *)name as: (NSNumber *)value {
+    
   };
   
   //

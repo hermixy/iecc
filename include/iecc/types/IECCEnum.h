@@ -38,7 +38,7 @@
           NSMutableDictionary *values;
       };
       - (instancetype)init;
-      + (IECCEnum *)enumWithValues: (NSArray *)values;
+      - (void)addValue: (NSString *)name as: (NSNumber *)value;
       - (void)dealloc;
     @end
   #endif

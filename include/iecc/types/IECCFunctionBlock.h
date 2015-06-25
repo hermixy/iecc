@@ -22,17 +22,26 @@
 * You should have received a copy of the GNU General Public License along with *
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
-#pragma once
-#import <Foundation/Foundation.h>
+//
+#ifndef __IECC_INCLUDE_IECC_TYPES_FUNCTION_BLOCK_INCLUDE__
+  #define __IECC_INCLUDE_IECC_TYPES_FUNCTION_BLOCK_INCLUDE__
+  #include "types/IECCAnyDerived.h"
+#endif
 
-/**
- * Function Block unit for the IEC 61131-3 languages.
- *
- * Function blocks are instantiable functions, which means that they hold their
- * own variables and may be called. They act as classes, so that they may be
- * inherited from, and inherit from other function blocks in the object oriented
- * sence.
- */
-@interface IECCFunctionBlock: NSObject
+//
+#ifndef __IECC_INCLUDE_IECC_TYPES_FUNCTION_BLOCK_DEFINE__
+  #ifdef __IECC_INCLUDE_IECC_TYPES_ANY_DERIVED_DEFINE__
+    #define __IECC_INCLUDE_IECC_TYPES_FUNCTION_BLOCK_DEFINE__
+    /**
+     * Function Block unit for the IEC 61131-3 languages.
+     *
+     * Function blocks are instantiable functions, which means that they hold their
+     * own variables and may be called. They act as classes, so that they may be
+     * inherited from, and inherit from other function blocks in the object oriented
+     * sence.
+     */
+    @interface IECCFunctionBlock: IECCAnyDerived
 
-@end
+    @end
+  #endif
+#endif

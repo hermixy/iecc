@@ -25,7 +25,6 @@
 #pragma once
 #import <Foundation/Foundation.h>
 #import "IECCProgram.h"
-#import "IECCFunctionBlock.h"
 
 /**
  * Task unit for the IEC 61131-3 languages.
