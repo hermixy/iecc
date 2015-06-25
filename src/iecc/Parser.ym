@@ -148,7 +148,7 @@
 %token TOK_LDT
 
 /* Table 11 */
-%token TOK_ENUM_LITERAL
+%token TOK_ENUM_LITERAL "enum literal"
 %token TOK_TYPE
 %token TOK_END_TYPE
 %token TOK_ARRAY
@@ -613,21 +613,13 @@ subrange_set_value: /* empty */ {
                     $$ = $2;
                   };
 
-enum_type_decl: enum_type_name ':' enum_type_decl2 {
+enum_type_decl: simple_identifier ':' enum_type_decl2 {
                 // Enum or "type with named value" type declaration
-                $$ = [binder
-                  declareType: $1
-                           as: [$3 objectAtIndex: 0] // TODO: default value
-                       atLine: @1.first_line
-                ];
-                
-                // Leave our enum state
-                [binder leaveEnum];
-              };
-
-enum_type_name: simple_identifier {
-                // We are inside a new enum, we have to keep track of that
-                [binder enterEnum: $$ = $1];
+                //~ $$ = [binder
+                  //~ declareType: $1
+                           //~ as: [$3 objectAtIndex: 0] // TODO: default value
+                       //~ atLine: @1.first_line
+                //~ ];
               };
 
 enum_type_decl2: elem_type_name_opt named_spec_init %dprec 10 {
@@ -638,7 +630,9 @@ enum_type_decl2: elem_type_name_opt named_spec_init %dprec 10 {
                  $$ = $1;
                };
 
-named_spec_init: '(' enum_value_spec_list ')' named_set_value;
+named_spec_init: named_spec_init_type named_set_value;
+
+named_spec_init_type: enter_enum enum_value_spec_list leave_enum;
 
 named_set_value: /* empty */ {
                  $$ = [NSNull null];
@@ -655,18 +649,31 @@ enum_value_spec_list: enum_value_spec {
                     };
 
 enum_spec_init: enum_spec_init_type named_set_value {
-                $$ = @[$1 /* TODO */];
+                $$ = @[$1, $2];
               };
 
-enum_spec_init_type: '(' enum_value_spec_list ')' {
-                     $$ = [IECCEnum enumWithValues: $2];
+enum_spec_init_type: enter_enum enum_value_spec_list leave_enum {
+                     $$ = $3;
                    }
                    | enum_type_access {
+                     // We are just making a type alias
                      $$ = $1;
                    };
 
+enter_enum: '(' {
+            [binder enterEnum];
+          };
+
+leave_enum: ')' {
+            $$ = [binder leaveEnum];
+          };
+
 enum_value_spec: simple_identifier enum_value_spec_set_value {
+                 // Aside with passing the values upwards...
                  $$ = @[$1, $2];
+                 
+                 // We have to bind them immediately!
+                 [binder setEnumValue: $1 as: $2];
                };
 
 enum_value_spec_set_value: /* empty */ {
@@ -680,8 +687,7 @@ enum_value_spec_set_value: /* empty */ {
                            $$ = $2;
                          };
 
-enum_value: simple_identifier /* TODO!!! */
-          | TOK_ENUM_LITERAL;
+enum_value: TOK_ENUM_LITERAL;
 
 array_type_decl: simple_identifier ':' array_spec_init;
 

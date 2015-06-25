@@ -32,6 +32,7 @@
     if((self = super.init)) {
       // Setup variables
       dictionary = NSMutableDictionary.new;
+      enumerations = NSMutableArray.new;
     };
     
     // As always...
@@ -61,13 +62,19 @@
   };
   
   //
-  - (void)enterEnum: (NSString *)which {
-    
+  - (void)enterEnum {
+    printf("Entering enum!\n");
   };
   
   //
-  - (void)leaveEnum {
-    
+  - (IECCEnum *)leaveEnum {
+    printf("Leaving enum!\n");
+    return nil;
+  };
+  
+  //
+  - (void)setEnumValue: (NSString *)name as: (NSString *)value {
+    printf("Defining value [%s]!\n", name.description.UTF8String);
   };
   
   // Cleanup memory

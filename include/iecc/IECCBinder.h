@@ -37,6 +37,11 @@
        *
        */
       NSMutableDictionary *dictionary;
+  
+      /**
+       *
+       */
+      NSMutableArray *enumerations;
   };
   
   /**
@@ -57,8 +62,13 @@
   - (__weak IECCDataType *)type: (NSString *)name;
   
   //
-  - (void)enterEnum: (NSString *)which;
-  - (void)leaveEnum;
+  - (void)enterEnum;
+  
+  //
+  - (void)setEnumValue: (NSString *)name as: (NSString *)value;
+  
+  //
+  - (IECCEnum *)leaveEnum;
   
   /**
    *
