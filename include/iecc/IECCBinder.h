@@ -68,7 +68,7 @@
   - (void)setEnumValue: (NSString *)name as: (NSString *)value;
   
   //
-  - (IECCEnum *)leaveEnum;
+  - (__weak IECCEnum *)leaveEnum;
   
   /**
    *

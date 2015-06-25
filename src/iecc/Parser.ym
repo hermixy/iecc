@@ -615,11 +615,11 @@ subrange_set_value: /* empty */ {
 
 enum_type_decl: simple_identifier ':' enum_type_decl2 {
                 // Enum or "type with named value" type declaration
-                //~ $$ = [binder
-                  //~ declareType: $1
-                           //~ as: [$3 objectAtIndex: 0] // TODO: default value
-                       //~ atLine: @1.first_line
-                //~ ];
+                $$ = [binder
+                  declareType: $1
+                           as: [$3 objectAtIndex: 0] // TODO: default value
+                       atLine: @1.first_line
+                ];
               };
 
 enum_type_decl2: elem_type_name_opt named_spec_init %dprec 10 {

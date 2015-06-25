@@ -64,12 +64,15 @@
   //
   - (void)enterEnum {
     printf("Entering enum!\n");
+    [enumerations addObject: IECCEnum.new];
   };
   
   //
-  - (IECCEnum *)leaveEnum {
+  - (__weak IECCEnum *)leaveEnum {
     printf("Leaving enum!\n");
-    return nil;
+    id last = [enumerations lastObject];
+    [enumerations removeLastObject];
+    return last;
   };
   
   //
@@ -80,6 +83,7 @@
   // Cleanup memory
   - (void)dealloc {
     [dictionary autorelease];
+    [enumerations autorelease];
     [super dealloc];
   };
 @end
