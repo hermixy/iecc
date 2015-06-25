@@ -36,6 +36,11 @@
       /**
        *
        */
+      IECCBinder *child;
+      
+      /**
+       *
+       */
       NSMutableDictionary *dictionary;
   };
   
@@ -55,6 +60,16 @@
    *
    */
   - (__weak IECCDataType *)type: (NSString *)name;
+  
+  /**
+   *
+   */
+  - (void)pushScope;
+  
+  /**
+   *
+   */
+  - (__weak IECCBinder *)popScope;
   
   /**
    *

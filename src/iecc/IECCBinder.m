@@ -31,7 +31,7 @@
   - (instancetype)init {
     if((self = super.init)) {
       // Setup variables
-      dictionary = NSMutableDictionary.new;
+      dictionary = NSMutableDictionary.dictionary;
     };
     
     // As always...
@@ -58,6 +58,18 @@
     };
     
     return nil;
+  };
+  
+  //
+  - (void)pushScope {
+    //
+    
+  };
+  
+  //
+  - (__weak IECCBinder *)popScope {
+    //
+    
   };
   
   // Cleanup memory

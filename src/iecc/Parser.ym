@@ -88,10 +88,16 @@
 %token TOK_TODO
 %token TOK_INVALID
 
-/* Operators */
-%token TOK_SET
-%token TOK_DOTDOT
-%token TOK_FAT_ARROW
+/* Typenames */
+%token TOK_SIMPLE_TYPENAME "typename"
+%token TOK_SUBRANGE_TYPENAME
+%token TOK_ENUM_TYPENAME
+%token TOK_ARRAY_TYPENAME
+%token TOK_STRUCT_TYPENAME
+%token TOK_STRING_TYPENAME
+%token TOK_CLASS_TYPENAME
+%token TOK_REF_TYPENAME
+%token TOK_INTERFACE_TYPENAME
 
 /* Table 2 */
 %token TOK_IDENTIFIER "unbound identifier"
@@ -142,18 +148,9 @@
 %token TOK_LDT
 
 /* Table 11 */
-%token TOK_SIMPLE_TYPENAME "typename"
-%token TOK_SUBRANGE_TYPENAME
-%token TOK_ENUM_TYPENAME
-%token TOK_ARRAY_TYPENAME
-%token TOK_STRUCT_TYPENAME
-%token TOK_STRING_TYPENAME
-%token TOK_CLASS_TYPENAME
-%token TOK_REF_TYPENAME
-%token TOK_INTERFACE_TYPENAME
 %token TOK_ENUM_LITERAL
 %token TOK_TYPE
-%token TOK_END_TYPE "END_TYPE"
+%token TOK_END_TYPE
 %token TOK_ARRAY
 %token TOK_OF
 %token TOK_STRUCT
@@ -245,6 +242,9 @@
 %token TOK_LANG_C
 
 /* Operators... */
+%token TOK_SET
+%token TOK_DOTDOT
+%token TOK_FAT_ARROW
 %token TOK_OR
 %token TOK_XOR
 %token TOK_AND
@@ -262,6 +262,7 @@
 %token TOK_POWER
 %token TOK_NOT
 
+/* Operator precedence... */
 %left TOK_OR
 %left TOK_XOR
 %left TOK_AND
