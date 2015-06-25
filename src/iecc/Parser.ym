@@ -613,17 +613,26 @@ subrange_set_value: /* empty */ {
                     $$ = $2;
                   };
 
-enum_type_decl: simple_identifier ':' enum_type_decl2 {
+enum_type_decl: enum_type_name ':' enum_type_decl2 {
                 // Enum or "type with named value" type declaration
                 $$ = [binder
                   declareType: $1
                            as: [$3 objectAtIndex: 0] // TODO: default value
                        atLine: @1.first_line
                 ];
+                
+                // Leave our enum state
+                [binder leaveEnum];
+              };
+
+enum_type_name: simple_identifier {
+                // We are inside a new enum, we have to keep track of that
+                [binder enterEnum: $$ = $1];
               };
 
 enum_type_decl2: elem_type_name_opt named_spec_init %dprec 10 {
                  // TODO
+                 $$ = nil;
                }
                | enum_spec_init %dprec 50 {
                  $$ = $1;

@@ -31,7 +31,7 @@
   - (instancetype)init {
     if((self = super.init)) {
       // Setup variables
-      dictionary = NSMutableDictionary.dictionary;
+      dictionary = NSMutableDictionary.new;
     };
     
     // As always...
@@ -61,14 +61,12 @@
   };
   
   //
-  - (void)pushScope {
-    //
+  - (void)enterEnum: (NSString *)which {
     
   };
   
   //
-  - (__weak IECCBinder *)popScope {
-    //
+  - (void)leaveEnum {
     
   };
   

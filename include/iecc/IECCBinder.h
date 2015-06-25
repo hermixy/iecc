@@ -36,11 +36,6 @@
       /**
        *
        */
-      IECCBinder *child;
-      
-      /**
-       *
-       */
       NSMutableDictionary *dictionary;
   };
   
@@ -61,15 +56,9 @@
    */
   - (__weak IECCDataType *)type: (NSString *)name;
   
-  /**
-   *
-   */
-  - (void)pushScope;
-  
-  /**
-   *
-   */
-  - (__weak IECCBinder *)popScope;
+  //
+  - (void)enterEnum: (NSString *)which;
+  - (void)leaveEnum;
   
   /**
    *
