@@ -36,6 +36,7 @@
     @interface IECCEnum: IECCAnyDerived {
         @private
           NSMutableDictionary *values;
+          __weak NSNumber *last_value;
       };
       - (instancetype)init;
       - (void)addValue: (NSString *)name as: (NSNumber *)value;

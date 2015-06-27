@@ -22,12 +22,14 @@
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
 #import "types/IECCEnum.h"
+#import "NSNumber+IECC.h"
 
 @implementation IECCEnum
   //
   - (instancetype)init {
     if((self = super.init)) {
-      self->values = NSMutableDictionary.new;
+      values = NSMutableDictionary.new;
+      last_value = @(0);
     };
     return self;
   };
@@ -49,7 +51,31 @@
   
   //
   - (void)addValue: (NSString *)name as: (NSNumber *)value {
-    
+    //~ printf("Adding enum value (%s) to be (%s).\n",
+      //~ name.description.UTF8String,
+      //~ value.description.UTF8String
+    //~ );
+    if([NSNull null] == (id)value) {
+      [self addValue: name as: last_value];
+    } else {
+      // TODO: I'm not sure yet how I'll be handling enum values
+      // in the lexer, so we might need to remove this check
+      assert("Internal compiler error" &&
+        [values objectForKey: name.capitalizedString] == nil);
+      
+      // Just to be sure...
+      assert("Internal compiler error" &&
+        [value isKindOfClass: NSNumber.class]);
+      
+      // Set value up ;)
+      [values setObject: value forKey: name.capitalizedString];
+      
+      //
+      NSLog(@"%@", values);
+      
+      // Increase our value
+      last_value = [value add: @(1)];
+    };
   };
   
   //

@@ -624,7 +624,6 @@ enum_type_decl: simple_identifier ':' enum_type_decl2 {
 
 enum_type_decl2: elem_type_name_opt named_spec_init %dprec 10 {
                  // TODO
-                 $$ = nil;
                }
                | enum_spec_init %dprec 50 {
                  $$ = $1;
@@ -653,6 +652,7 @@ enum_spec_init: enum_spec_init_type named_set_value {
               };
 
 enum_spec_init_type: enter_enum enum_value_spec_list leave_enum {
+                     // Pass our returned enum up
                      $$ = $3;
                    }
                    | enum_type_access {
@@ -684,7 +684,12 @@ enum_value_spec_set_value: /* empty */ {
                            $$ = $2;
                          } */
                          | TOK_SET constant_expr {
-                           $$ = $2;
+                           // TODO: handle expression error!
+                           if($2) {
+                             $$ = $2;
+                           } else {
+                             $$ = [NSNull null];
+                           };
                          };
 
 enum_value: TOK_ENUM_LITERAL;
