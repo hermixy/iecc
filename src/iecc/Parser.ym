@@ -640,14 +640,11 @@ named_set_value: /* empty */ {
                  $$ = $2;
                };
 
-enum_value_spec_list: enum_value_spec {
-                      $$ = @[$1];
-                    }
-                    | enum_value_spec_list ',' enum_value_spec {
-                      $$ = [$1 arrayByAddingObject: $3];
-                    };
+enum_value_spec_list: enum_value_spec
+                    | enum_value_spec_list ',' enum_value_spec;
 
 enum_spec_init: enum_spec_init_type named_set_value {
+                assert("Internal compiler error." && $1 && $2);
                 $$ = @[$1, $2];
               };
 
@@ -669,9 +666,6 @@ leave_enum: ')' {
           };
 
 enum_value_spec: simple_identifier enum_value_spec_set_value {
-                 // Aside with passing the values upwards...
-                 $$ = @[$1, $2];
-                 
                  // We have to bind them immediately!
                  [binder setEnumValue: $1 as: $2];
                };
@@ -679,15 +673,12 @@ enum_value_spec: simple_identifier enum_value_spec_set_value {
 enum_value_spec_set_value: /* empty */ {
                            $$ = [NSNull null];
                          }
-                         /* Not needed! ;) */
-                         /*| TOK_SET int_literal {
-                           $$ = $2;
-                         } */
                          | TOK_SET constant_expr {
-                           // TODO: handle expression error!
                            if($2) {
                              $$ = $2;
                            } else {
+                             // TODO: handle expression error
+                             // Acts as if we hadn't set a value
                              $$ = [NSNull null];
                            };
                          };
@@ -1620,10 +1611,14 @@ int main(int argc, char **argv) {
     yydebug = argv[1] && strcmp(argv[1], "debug") == 0;
     
     IECCBinder *binder = IECCBinder.new;
-    
-    yyparse(binder);
-    
-    [binder autorelease];
+    //~ @try {
+      
+      yyparse(binder);
+      [binder autorelease];
+      
+    //~ } @catch(id exception) {
+      //~ assert("Internal compiler error." && !"Unexpected exception.");
+    //~ };
   };
   
   return EXIT_SUCCESS;

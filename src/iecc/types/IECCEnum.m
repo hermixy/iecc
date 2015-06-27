@@ -35,21 +35,6 @@
   };
   
   //
-  //~ + (IECCEnum *)enumWithValues: (NSArray *)values {
-    //~ IECCEnum *myself = self.new;
-    
-    //~ if(myself) {
-      //~ for(id i in values) {
-        //~ [myself->values setObject: [i objectAtIndex: 1]
-                           //~ forKey: [i objectAtIndex: 0]];
-      //~ };
-      
-    //~ };
-    
-    //~ return myself;
-  //~ };
-  
-  //
   - (void)addValue: (NSString *)name as: (NSNumber *)value {
     //~ printf("Adding enum value (%s) to be (%s).\n",
       //~ name.description.UTF8String,
@@ -65,17 +50,24 @@
       
       // Just to be sure...
       assert("Internal compiler error" &&
+        value &&
         [value isKindOfClass: NSNumber.class]);
       
       // Set value up ;)
       [values setObject: value forKey: name.capitalizedString];
       
-      //
-      NSLog(@"%@", values);
-      
       // Increase our value
       last_value = [value add: @(1)];
     };
+  };
+  
+  - (NSUInteger)countByEnumeratingWithState: (NSFastEnumerationState *)state
+                                    objects: (id *)stackbuf
+                                      count: (NSUInteger)len
+  {
+    return [values countByEnumeratingWithState: state
+                                       objects: stackbuf
+                                         count: len];
   };
   
   //

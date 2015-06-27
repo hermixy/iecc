@@ -34,12 +34,31 @@
     
     //
     @interface IECCEnum: IECCAnyDerived {
+        // Private share
         @private
+          /**
+           *
+           */
           NSMutableDictionary *values;
-          __weak NSNumber *last_value;
+          
+          /**
+           *
+           */
+          NSNumber *last_value;
       };
+      
+      //
       - (instancetype)init;
+      
+      //
       - (void)addValue: (NSString *)name as: (NSNumber *)value;
+      
+      //
+      - (NSUInteger)countByEnumeratingWithState: (NSFastEnumerationState *)state
+                                        objects: (id *)stackbuf
+                                          count: (NSUInteger)len;
+      
+      //
       - (void)dealloc;
     @end
   #endif

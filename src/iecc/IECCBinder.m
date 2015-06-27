@@ -32,7 +32,6 @@
     if((self = super.init)) {
       // Setup variables
       dictionary = NSMutableDictionary.new;
-      enumerations = NSMutableArray.new;
     };
     
     // As always...
@@ -44,6 +43,7 @@
                              as: (IECCDataType *)type
                          atLine: (int)pos
   {
+    assert("Internal compiler error." && name && type);
     [dictionary setObject: @[type, @(pos)] forKey: name.capitalizedString];
     return type;
   };
@@ -63,28 +63,41 @@
   
   //
   - (void)enterEnum {
-    printf("Entering enum!\n");
-    [enumerations addObject: IECCEnum.new];
-  };
-  
-  //
-  - (__weak IECCEnum *)leaveEnum {
-    printf("Leaving enum!\n");
-    id last = [enumerations lastObject];
-    [enumerations removeLastObject];
-    return last;
+    assert("Internal compiler error." && enumeration == nil);
+    enumeration = IECCEnum.new;
   };
   
   //
   - (void)setEnumValue: (NSString *)name as: (NSNumber *)value {
-    printf("Defining value [%s]!\n", name.description.UTF8String);
-    [[enumerations lastObject] addValue: name as: value];
+    printf("Setting %s as %s.\n",
+      name.description.UTF8String,
+      value.description.UTF8String);
+    assert("Internal compiler error." && value);
+    [enumeration addValue: name as: value];
+  };
+  
+  //
+  - (NSNumber *)enumValue: (NSString *)name {
+    //~ int count = 0;
+    printf("arriba\n");
+    for(NSString *key in enumeration) {
+      printf("key = %s\n", key.description.UTF8String);
+    };
+    
+    return nil;
+  };
+  
+  //
+  - (__weak IECCEnum *)leaveEnum {
+    printf("Leaving enum! ;)\n");
+    id result = enumeration;
+    enumeration = nil;
+    return result;
   };
   
   // Cleanup memory
   - (void)dealloc {
     [dictionary autorelease];
-    [enumerations autorelease];
     [super dealloc];
   };
 @end

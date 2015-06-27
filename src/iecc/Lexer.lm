@@ -49,7 +49,7 @@
   /**
    * TODO: doc me (it will set yylval!)
    */
-  int get_identifier_token(IECCDataType *);
+  int get_identifier_token(IECCBinder *);
 %}
 
 /* Options */
@@ -441,10 +441,7 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
      after we already lexed keywords */
   {identifier}                          {
                                           // Then check if it's declared already
-                                          id bound = [binder type: @(yytext)];
-                                          
-                                          //
-                                          return get_identifier_token(bound);
+                                          return get_identifier_token(binder);
                                         };
   
   {identifier}{gibberish}               {
@@ -485,7 +482,7 @@ void yy_user_action(void) {
 };
 
 //
-int get_identifier_token(IECCDataType *type) {
+int get_type_token(IECCDataType *type) {
   // Sets our value to our type
   yylval = type;
   
@@ -539,7 +536,26 @@ int get_identifier_token(IECCDataType *type) {
   #undef SIMPLE
   #undef STRING
   
-  // If not found, this is an (unbound) identifier!
-  yylval = @(yytext);
+  // Should not fall here!
+  assert(!"Internal compiler error.");
+};
+
+int get_identifier_token(IECCBinder *binder) {
+  //
+  NSString *text = @(yytext);
+  
+  printf("here bro [%s]\n", yytext);
+  
+  //
+  id type = [binder type: text];
+  if(type) {
+    return get_type_token(type);
+  };
+  
+  //
+  id value = [binder enumValue: text];
+  
+  //
+  yylval = text;
   return TOK_IDENTIFIER;
 };

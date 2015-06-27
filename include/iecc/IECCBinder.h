@@ -41,7 +41,7 @@
       /**
        *
        */
-      NSMutableArray *enumerations;
+      IECCEnum *enumeration;
   };
   
   /**
@@ -67,6 +67,10 @@
   //
   - (void)setEnumValue: (NSString *)name as: (NSNumber *)value;
   
+  //
+  - (NSNumber *)enumValue: (NSString *)name;
+  
+  //
   - (__weak IECCEnum *)leaveEnum;
   
   /**
