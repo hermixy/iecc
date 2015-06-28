@@ -624,14 +624,23 @@ enum_type_decl: simple_identifier ':' enum_type_decl2 {
 
 enum_type_decl2: elem_type_name_opt named_spec_init %dprec 10 {
                  // TODO
+                 printf("A TYPE WITH NAMED ELEMENTS has just been declared!\n");
+                 $$ = $2;
                }
                | enum_spec_init %dprec 50 {
+                 printf("An ENUM has just been declared!\n");
                  $$ = $1;
                };
 
-named_spec_init: named_spec_init_type named_set_value;
+named_spec_init: named_spec_init_type named_set_value {
+                 assert("Internal compiler error." && $1 && $2);
+                 $$ = @[$1, $2];
+               };
 
-named_spec_init_type: enter_enum enum_value_spec_list leave_enum;
+named_spec_init_type: enter_enum enum_value_spec_list leave_enum {
+                      // Pass on our returned enum up
+                      $$ = $3;
+                    };
 
 named_set_value: /* empty */ {
                  $$ = [NSNull null];
@@ -648,14 +657,18 @@ enum_spec_init: enum_spec_init_type named_set_value {
                 $$ = @[$1, $2];
               };
 
-enum_spec_init_type: enter_enum enum_value_spec_list leave_enum {
-                     // Pass our returned enum up
+enum_spec_init_type: enter_enum enum_value_list leave_enum {
+                     // Pass on our returned enum up
                      $$ = $3;
                    }
                    | enum_type_access {
                      // We are just making a type alias
                      $$ = $1;
                    };
+
+/* Used for plain enums, not types with named values, we don't set values! */
+enum_value_list: simple_identifier
+               | enum_value_list ',' simple_identifier;
 
 enter_enum: '(' {
             extern const char *yytext;
