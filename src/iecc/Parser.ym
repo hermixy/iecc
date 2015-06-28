@@ -658,6 +658,8 @@ enum_spec_init_type: enter_enum enum_value_spec_list leave_enum {
                    };
 
 enter_enum: '(' {
+            extern const char *yytext;
+            printf("ENTERING ENUM!!! [%s]\n", yytext);
             [binder enterEnum];
           };
 

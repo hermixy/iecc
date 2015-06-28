@@ -544,8 +544,6 @@ int get_identifier_token(IECCBinder *binder) {
   //
   NSString *text = @(yytext);
   
-  printf("here bro [%s]\n", yytext);
-  
   //
   id type = [binder type: text];
   if(type) {

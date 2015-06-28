@@ -35,7 +35,8 @@
     //
     @interface IECCEnum: IECCAnyDerived {
         // Private share
-        @private
+        //~ @private
+        @public
           /**
            *
            */

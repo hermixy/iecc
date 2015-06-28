@@ -64,6 +64,7 @@
   //
   - (void)enterEnum {
     assert("Internal compiler error." && enumeration == nil);
+    printf("Entering enum! ;)\n");
     enumeration = IECCEnum.new;
   };
   
@@ -79,7 +80,8 @@
   //
   - (NSNumber *)enumValue: (NSString *)name {
     //~ int count = 0;
-    printf("arriba\n");
+    if(enumeration)
+      printf("arriba [%d]\n", [enumeration->values count]);
     for(NSString *key in enumeration) {
       printf("key = %s\n", key.description.UTF8String);
     };
