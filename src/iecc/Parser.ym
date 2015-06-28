@@ -671,8 +671,6 @@ enum_value_list: simple_identifier
                | enum_value_list ',' simple_identifier;
 
 enter_enum: '(' {
-            extern const char *yytext;
-            printf("ENTERING ENUM!!! [%s]\n", yytext);
             [binder enterEnum];
           };
 

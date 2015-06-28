@@ -35,6 +35,11 @@
   };
   
   //
+  - (NSNumber *)objectForKey: (NSString *)name {
+    return [values objectForKey: name.uppercaseString];
+  };
+  
+  //
   - (void)addValue: (NSString *)name as: (NSNumber *)value {
     //~ printf("Adding enum value (%s) to be (%s).\n",
       //~ name.description.UTF8String,
@@ -46,7 +51,7 @@
       // TODO: I'm not sure yet how I'll be handling enum values
       // in the lexer, so we might need to remove this check
       assert("Internal compiler error" &&
-        [values objectForKey: name.capitalizedString] == nil);
+        [values objectForKey: name.uppercaseString] == nil);
       
       // Just to be sure...
       assert("Internal compiler error" &&
@@ -54,7 +59,7 @@
         [value isKindOfClass: NSNumber.class]);
       
       // Set value up ;)
-      [values setObject: value forKey: name.capitalizedString];
+      [values setObject: value forKey: name.uppercaseString];
       
       // Increase our value
       last_value = [value add: @(1)];

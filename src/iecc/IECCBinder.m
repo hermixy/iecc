@@ -44,13 +44,13 @@
                          atLine: (int)pos
   {
     assert("Internal compiler error." && name && type);
-    [dictionary setObject: @[type, @(pos)] forKey: name.capitalizedString];
+    [dictionary setObject: @[type, @(pos)] forKey: name.uppercaseString];
     return type;
   };
   
   //
   - (__weak IECCDataType *)type: (NSString *)name {
-    id obj = [[dictionary objectForKey: name.capitalizedString]
+    id obj = [[dictionary objectForKey: name.uppercaseString]
                objectAtIndex: 0
              ];
     
@@ -64,26 +64,34 @@
   //
   - (void)enterEnum {
     assert("Internal compiler error." && enumeration == nil);
-    printf("Entering enum! ;)\n");
     enumeration = IECCEnum.new;
   };
   
   //
   - (void)setEnumValue: (NSString *)name as: (NSNumber *)value {
-    printf("Setting %s as %s.\n",
-      name.description.UTF8String,
-      value.description.UTF8String);
     assert("Internal compiler error." && value);
     [enumeration addValue: name as: value];
   };
   
   //
   - (NSNumber *)enumValue: (NSString *)name {
-    //~ int count = 0;
-    if(enumeration)
-      printf("arriba [%d]\n", [enumeration->values count]);
-    for(NSString *key in enumeration) {
-      printf("key = %s\n", key.description.UTF8String);
+    int count = 0;
+    
+    NSNumber *current = [enumeration objectForKey: name];
+    if(current) {
+      printf("We have found our key [%s]!\n", name.description.UTF8String);
+      count++;
+    };
+    
+    for(NSString *key in dictionary) {
+      IECCDataType *type = [self type: key];
+      if([type isKindOfClass: IECCEnum.class]) {
+        current = [(IECCEnum *)type objectForKey: name];
+        if(current) {
+          printf("We have found our key [%s]!\n", name.description.UTF8String);
+          count++;
+        };
+      };
     };
     
     return nil;
@@ -91,9 +99,8 @@
   
   //
   - (__weak IECCEnum *)leaveEnum {
-    printf("Leaving enum! ;)\n");
     id result = enumeration;
-    enumeration = nil;
+    //~ enumeration = nil; // TODO
     return result;
   };
   

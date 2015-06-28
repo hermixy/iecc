@@ -55,6 +55,9 @@
       - (void)addValue: (NSString *)name as: (NSNumber *)value;
       
       //
+      - (NSNumber *)objectForKey: (NSString *)name;
+      
+      //
       - (NSUInteger)countByEnumeratingWithState: (NSFastEnumerationState *)state
                                         objects: (id *)stackbuf
                                           count: (NSUInteger)len;
