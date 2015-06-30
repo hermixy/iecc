@@ -32,11 +32,28 @@
   #ifdef __IECC_INCLUDE_IECC_TYPES_ANY_DERIVED_DEFINE__
     #define __IECC_INCLUDE_IECC_TYPES_ENUM_DEFINE__
     
-    //
-    @interface IECCEnum: IECCAnyDerived {
+    /**
+     * Data type used to store enumerations (both plain enumerations and types
+     * with named elements).
+     *
+     * The standard describes, both semantically and syntax-wise, two different
+     * kinds of types: enumerations (henceforth enums), which are simply a list
+     * of unique values which were not defined by the user, and data types with
+     * named elements (henceforth named values), which act basically as an enum,
+     * but have an explicit elementary ype and/or have at least one of the
+     * enumerated values with a set value.
+     *
+     * This makes, syntactically, enums a subset of named values. Ideally the
+     * grammar file would follow the standard and recognize which one was being
+     * defined, but this led to a minor problem: the GLR parser couldn't track
+     * which values were defined on enums until it found the closing parenthesis
+     * and so things like (red, green, blue, red) would be allowed. By removing
+     * this rule from the grammar we were able to keep track of defined names as
+     * if enums were always named values.
+     */
+    @interface IECCEnum: IECCAnyDerived<NSFastEnumeration> {
         // Private share
-        //~ @private
-        @public
+        @private
           /**
            *
            */
@@ -51,10 +68,14 @@
       //
       - (instancetype)init;
       
-      //
+      /**
+       *
+       */
       - (void)addValue: (NSString *)name as: (NSNumber *)value;
       
-      //
+      /**
+       *
+       */
       - (NSNumber *)objectForKey: (NSString *)name;
       
       //

@@ -622,13 +622,11 @@ enum_type_decl: simple_identifier ':' enum_type_decl2 {
                 ];
               };
 
-enum_type_decl2: elem_type_name_opt named_spec_init %dprec 10 {
+enum_type_decl2: elem_type_name_opt named_spec_init /* %dprec 10 */ {
                  // TODO
-                 printf("A TYPE WITH NAMED ELEMENTS has just been declared!\n");
                  $$ = $2;
                }
-               | enum_spec_init %dprec 50 {
-                 printf("An ENUM has just been declared!\n");
+               | enum_spec_init /* %dprec 50 */ {
                  $$ = $1;
                };
 
@@ -657,11 +655,16 @@ enum_spec_init: enum_spec_init_type named_set_value {
                 $$ = @[$1, $2];
               };
 
-enum_spec_init_type: enter_enum enum_value_list leave_enum {
+/*
+  We ignore plain enum enumerations here, as they are a subset of types with
+  named elements. For a better explanation why, please check the documentation
+  for the IECCEnum class. This rule will only match when a type alias is made.
+*/
+enum_spec_init_type: /*enter_enum enum_value_list leave_enum {
                      // Pass on our returned enum up
                      $$ = $3;
                    }
-                   | enum_type_access {
+                   | */ enum_type_access {
                      // We are just making a type alias
                      $$ = $1;
                    };
