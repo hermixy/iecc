@@ -21,52 +21,9 @@
 * You should have received a copy of the GNU General Public License along with *
 * this program. If not, see <http://www.gnu.org/licenses/>.                    *
 *******************************************************************************/
-//
-#ifndef __IECC_INCLUDE_IECC_TYPES_ENUM_INCLUDE__
-  #define __IECC_INCLUDE_IECC_TYPES_ENUM_INCLUDE__
-  #include "types/IECCNamedType.h"
-#endif
+#import "types/IECCNamedType.h"
+#import "types/IECCEnum.h"
 
-//
-#ifndef __IECC_INCLUDE_IECC_TYPES_ENUM_DEFINE__
-  #ifdef __IECC_INCLUDE_IECC_TYPES_NAMED_TYPE_DEFINE__
-    #define __IECC_INCLUDE_IECC_TYPES_ENUM_DEFINE__
-    
-    //
-    @interface IECCEnum: IECCNamedType {
-        // Private share
-        @private
-          /**
-           *
-           */
-          NSMutableDictionary *values;
-          
-          /**
-           *
-           */
-          NSNumber *last_value;
-      };
-      
-      //
-      - (instancetype)init;
-      
-      /**
-       *
-       */
-      - (void)addValue: (NSString *)name as: (NSNumber *)value;
-      
-      /**
-       *
-       */
-      - (NSNumber *)objectForKey: (NSString *)name;
-      
-      //
-      - (NSUInteger)countByEnumeratingWithState: (NSFastEnumerationState *)state
-                                        objects: (id *)stackbuf
-                                          count: (NSUInteger)len;
-      
-      //
-      - (void)dealloc;
-    @end
-  #endif
-#endif
+@implementation IECCNamedType
+  
+@end
