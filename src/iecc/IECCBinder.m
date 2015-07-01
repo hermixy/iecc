@@ -63,45 +63,45 @@
   
   //
   - (void)enterEnum {
-    assert("Internal compiler error." && enumeration == nil);
-    enumeration = IECCEnum.new;
+    //~ assert("Internal compiler error." && enumeration == nil);
+    //~ enumeration = IECCEnum.new;
   };
   
   //
   - (void)setEnumValue: (NSString *)name as: (NSNumber *)value {
-    assert("Internal compiler error." && value);
-    [enumeration addValue: name as: value];
+    //~ assert("Internal compiler error." && value);
+    //~ [enumeration addValue: name as: value];
   };
   
   //
   - (NSNumber *)enumValue: (NSString *)name {
-    int count = 0;
+    //~ int count = 0;
     
-    NSNumber *current = [enumeration objectForKey: name];
-    if(current) {
-      printf("We have found our key [%s]!\n", name.description.UTF8String);
-      count++;
-    };
+    //~ NSNumber *current = [enumeration objectForKey: name];
+    //~ if(current) {
+      //~ printf("We have found our key [%s]!\n", name.description.UTF8String);
+      //~ count++;
+    //~ };
     
-    for(NSString *key in dictionary) {
-      IECCDataType *type = [self type: key];
-      if([type isKindOfClass: IECCEnum.class]) {
-        current = [(IECCEnum *)type objectForKey: name];
-        if(current) {
-          printf("We have found our key [%s]!\n", name.description.UTF8String);
-          count++;
-        };
-      };
-    };
+    //~ for(NSString *key in dictionary) {
+      //~ IECCDataType *type = [self type: key];
+      //~ if([type isKindOfClass: IECCEnum.class]) {
+        //~ current = [(IECCEnum *)type objectForKey: name];
+        //~ if(current) {
+          //~ printf("We have found our key [%s]!\n", name.description.UTF8String);
+          //~ count++;
+        //~ };
+      //~ };
+    //~ };
     
     return nil;
   };
   
   //
   - (__weak IECCEnum *)leaveEnum {
-    id result = enumeration;
+    //~ id result = enumeration;
     //~ enumeration = nil; // TODO
-    return result;
+    //~ return result;
   };
   
   // Cleanup memory

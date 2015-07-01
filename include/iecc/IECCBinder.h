@@ -41,7 +41,7 @@
       /**
        *
        */
-      IECCEnum *enumeration;
+      NSMutableDictionary *enumeration;
   };
   
   /**

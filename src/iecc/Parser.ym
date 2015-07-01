@@ -613,14 +613,23 @@ subrange_set_value: /* empty */ {
                     $$ = $2;
                   };
 
-enum_type_decl: simple_identifier ':' enum_type_decl2 {
+enum_type_decl: simple_identifier ':' enter_enum enum_type_decl2 leave_enum {
                 // Enum or "type with named value" type declaration
-                $$ = [binder
-                  declareType: $1
-                           as: [$3 objectAtIndex: 0] // TODO: default value
-                       atLine: @1.first_line
-                ];
+                printf("Binding an enum or named type!\n");
+                //~ $$ = [binder
+                  //~ declareType: $1
+                           //~ as: [$4 objectAtIndex: 0] // TODO: default value
+                       //~ atLine: @1.first_line
+                //~ ];
               };
+
+enter_enum: /* empty */ {
+            [binder enterEnum];
+          };
+
+leave_enum: /* empty */ {
+            
+          };
 
 enum_type_decl2: elem_type_name_opt named_spec_init /* %dprec 10 */ {
                  // TODO
@@ -635,7 +644,7 @@ named_spec_init: named_spec_init_type named_set_value {
                  $$ = @[$1, $2];
                };
 
-named_spec_init_type: enter_enum enum_value_spec_list leave_enum {
+named_spec_init_type: '(' enum_value_spec_list ')' {
                       // Pass on our returned enum up
                       $$ = $3;
                     };
@@ -659,8 +668,10 @@ enum_spec_init: enum_spec_init_type named_set_value {
   We ignore plain enum enumerations here, as they are a subset of types with
   named elements. For a better explanation why, please check the documentation
   for the IECCEnum class. This rule will only match when a type alias is made.
+  
+  TODO: /\ refactor and remove message ;)
 */
-enum_spec_init_type: /*enter_enum enum_value_list leave_enum {
+enum_spec_init_type: /*'(' enum_value_list ')' {
                      // Pass on our returned enum up
                      $$ = $3;
                    }
@@ -672,14 +683,6 @@ enum_spec_init_type: /*enter_enum enum_value_list leave_enum {
 /* Used for plain enums, not types with named values, we don't set values! */
 enum_value_list: simple_identifier
                | enum_value_list ',' simple_identifier;
-
-enter_enum: '(' {
-            [binder enterEnum];
-          };
-
-leave_enum: ')' {
-            $$ = [binder leaveEnum];
-          };
 
 enum_value_spec: simple_identifier enum_value_spec_set_value {
                  // We have to bind them immediately!
