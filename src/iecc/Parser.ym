@@ -54,6 +54,9 @@
   
   // Duck typing FTW! ;)
   #define YYSTYPE id
+  
+  // We need this lexer hack here
+  extern void yyinside_enum_state(_Bool);
 }
 
 %{
@@ -625,10 +628,12 @@ enum_type_decl: simple_identifier ':' enter_enum enum_type_decl2 leave_enum {
 
 enter_enum: /* empty */ {
             [binder enterEnum];
+            yyinside_enum_state(true);
           };
 
 leave_enum: /* empty */ {
-            
+            [binder leaveEnum];
+            yyinside_enum_state(false);
           };
 
 enum_type_decl2: elem_type_name_opt named_spec_init /* %dprec 10 */ {
