@@ -62,15 +62,15 @@
   };
   
   //
-  - (void)enterEnum {
-    //~ assert("Internal compiler error." && enumeration == nil);
-    //~ enumeration = IECCEnum.new;
+  - (void)enterEnum: (NSString *)name {
+    assert("Internal compiler error." && current_enum == nil);
+    current_enum = name.uppercaseString;
   };
   
   //
-  - (void)setEnumValue: (NSString *)name as: (NSNumber *)value {
-    //~ assert("Internal compiler error." && value);
-    //~ [enumeration addValue: name as: value];
+  - (void)seemEnumName: (NSString *)name {
+    assert("Internal compiler error." && name);
+    printf("Adding enum value [%s].\n", name.description.UTF8String);
   };
   
   //
@@ -98,10 +98,9 @@
   };
   
   //
-  - (__weak IECCEnum *)leaveEnum {
-    //~ id result = enumeration;
-    //~ enumeration = nil; // TODO
-    //~ return result;
+  - (void)leaveEnum {
+    assert("Internal compiler error." && current_enum);
+    current_enum = nil;
   };
   
   // Cleanup memory

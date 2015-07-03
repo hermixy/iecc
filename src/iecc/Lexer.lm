@@ -44,7 +44,12 @@
   /**
    *
    */
-  _Bool yyinside_enum = false;
+  static _Bool yyinside_enum = false;
+  
+  /**
+   *
+   */
+  static NSString *yylast_identifier = nil;
   
   /**
    *
@@ -428,15 +433,24 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
 
 <ENUMERATION>{
   ")"                                   {
+                                          if(yyinside_enum)
+                                            [binder seemEnumName:
+                                              yylast_identifier];
                                           return ')';
                                         };
-                                        
+  
   ","                                   {
+                                          if(yyinside_enum)
+                                            [binder seemEnumName:
+                                              yylast_identifier];
                                           return ',';
                                         };
-                                        
-  {identifier}                          {
-                                          return TOK_IDENTIFIER;
+  
+  ":="                                  {
+                                          if(yyinside_enum)
+                                            [binder seemEnumName:
+                                              yylast_identifier];
+                                          return TOK_SET;
                                         };
 }
 
@@ -465,6 +479,9 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
      the standard; had to be in the end
      after we already lexed keywords */
   {identifier}                          {
+                                          // Box and save it (used for enums)
+                                          yylast_identifier = @(yytext);
+                                          
                                           // Then check if it's declared already
                                           return get_identifier_token(binder);
                                         };
@@ -504,19 +521,6 @@ void yy_user_action(void) {
   yylloc.last_column = yycolumn;
   
   // TODO: save current lexer AND parser state on a tree!
-};
-
-//
-void yyinside_enum_state(_Bool state) {
-  // We can only enter if we're not parsing an enum, and leave when we're so
-  assert("Internal compiler error." && state ^ yyinside_enum);
-  
-  // Store the new state (simply invert it), changing our state
-  if((yyinside_enum = state)) {
-    YYPUSH ENUMERATION;
-  } else {
-    YYPOP;
-  };
 };
 
 //
