@@ -32,6 +32,7 @@
     if((self = super.init)) {
       // Setup variables
       dictionary = NSMutableDictionary.new;
+      enum_values = NSMutableArray.new;
     };
     
     // As always...
@@ -70,11 +71,15 @@
   //
   - (void)seemEnumName: (NSString *)name {
     assert("Internal compiler error." && name);
-    printf("Adding enum value [%s].\n", name.description.UTF8String);
+    assert("Internal compiler error." &&
+      ![enum_values containsObject: name.uppercaseString]);
+    
+    // 
+    [enum_values addObject: name.uppercaseString];
   };
   
   //
-  - (NSNumber *)enumValue: (NSString *)name {
+  - (NSArray *)enumValue: (NSString *)name {
     //~ int count = 0;
     
     //~ NSNumber *current = [enumeration objectForKey: name];
@@ -100,12 +105,14 @@
   //
   - (void)leaveEnum {
     assert("Internal compiler error." && current_enum);
+    [enum_values removeAllObjects];
     current_enum = nil;
   };
   
   // Cleanup memory
   - (void)dealloc {
     [dictionary autorelease];
+    [enum_values autorelease];
     [super dealloc];
   };
 @end

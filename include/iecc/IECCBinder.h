@@ -42,6 +42,11 @@
        *
        */
       NSString *current_enum;
+      
+      /**
+       *
+       */
+      NSMutableArray *enum_values;
   };
   
   /**
@@ -68,7 +73,7 @@
   - (void)seemEnumName: (NSString *)name;
   
   //
-  - (NSNumber *)enumValue: (NSString *)name;
+  - (NSArray *)enumValue: (NSString *)name;
   
   //
   - (void)leaveEnum;
