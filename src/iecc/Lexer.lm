@@ -44,22 +44,22 @@
   /**
    *
    */
-  static _Bool yyinside_enum = false;
-  
-  /**
-   *
-   */
   static NSString *yylast_identifier = nil;
   
   /**
    *
    */
-  void yy_user_action(void);
+  static void yy_user_action(void);
   
   /**
    * TODO: doc me (it will set yylval!)
    */
-  int get_identifier_token(IECCBinder *);
+  static int get_identifier_token(IECCBinder *);
+  
+  /**
+   *
+   */
+  static void fix_enum(IECCBinder *binder);
 %}
 
 /* Options */
@@ -429,32 +429,7 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
   
   /* Cause why not? */
   TODO                                  return TOK_TODO;
-}
-
-<ENUMERATION>{
-  ")"                                   {
-                                          if(yyinside_enum)
-                                            [binder seemEnumName:
-                                              yylast_identifier];
-                                          return ')';
-                                        };
   
-  ","                                   {
-                                          if(yyinside_enum)
-                                            [binder seemEnumName:
-                                              yylast_identifier];
-                                          return ',';
-                                        };
-  
-  ":="                                  {
-                                          if(yyinside_enum)
-                                            [binder seemEnumName:
-                                              yylast_identifier];
-                                          return TOK_SET;
-                                        };
-}
-
-<INITIAL,ENUMERATION>{
   /* Borrowed from the Structured Text
      language while we are in "mixed"
      mode */
@@ -497,11 +472,11 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
   "]"                                   return ']';
   ":"                                   return ':';
   "("                                   return '(';
-  ")"                                   return ')';
-  ","                                   return ',';
+  ")"                                   return fix_enum(binder), ')';
+  ","                                   return fix_enum(binder), ',';
   "^"                                   return '^';
   ";"                                   return ';';
-  ":="                                  return TOK_SET;
+  ":="                                  return fix_enum(binder), TOK_SET;
   ".."                                  return TOK_DOTDOT;
   "=>"                                  return TOK_FAT_ARROW;
 }
@@ -513,7 +488,7 @@ register_variable     ("%"R{direct_variable_size}?{identifier})
 %%
 
 // Custom user action after getting a token
-void yy_user_action(void) {
+static void yy_user_action(void) {
   // Keep track of our position on yylloc (used by bison)
   yylloc.first_line = yylloc.last_line = yylineno;
   yylloc.first_column = yycolumn;
@@ -524,7 +499,7 @@ void yy_user_action(void) {
 };
 
 //
-int get_type_token(IECCDataType *type) {
+static int get_type_token(IECCDataType *type) {
   // Sets our value to our type
   yylval = type;
   
@@ -582,7 +557,7 @@ int get_type_token(IECCDataType *type) {
   assert(!"Internal compiler error.");
 };
 
-int get_identifier_token(IECCBinder *binder) {
+static int get_identifier_token(IECCBinder *binder) {
   //
   NSString *text = @(yytext);
   
@@ -594,9 +569,22 @@ int get_identifier_token(IECCBinder *binder) {
   
   //
   id value = [binder enumValue: text];
-  (void)value;
+  if([value count]) {
+    if([value count] == 1) {
+      // Return it's NSNumber *value :)
+    };
+    
+    // TODO: warn about ambiguos enum!
+    return TOK_INVALID;
+  };
   
   //
   yylval = text;
   return TOK_IDENTIFIER;
+};
+
+static void fix_enum(IECCBinder *binder) {
+  if([binder isInsideEnum]) {
+    [binder seemEnumName: yylast_identifier];
+  };
 };

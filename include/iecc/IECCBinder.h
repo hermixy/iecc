@@ -28,7 +28,14 @@
 // TODO: add contexts, for namespace lookup and stuff
 
 /**
+ * This class controls name binding throughout a source file.
  *
+ * This class can keep track of type and variable declarations in order to
+ * know which names are already known and to easely retrieve a declared entity.
+ *
+ * It also works as The Lexer Hack (http://en.wikipedia.org/wiki/The_lexer_hack)
+ * which is needed to parse correctly our languages given the grammar specified
+ * by the standard.
  */
 @interface IECCBinder: NSObject {
     // Private share
@@ -68,6 +75,9 @@
   
   //
   - (void)enterEnum: (NSString *)name;
+  
+  //
+  - (_Bool)isInsideEnum;
   
   //
   - (void)seemEnumName: (NSString *)name;

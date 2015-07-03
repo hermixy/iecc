@@ -69,6 +69,11 @@
   };
   
   //
+  - (_Bool)isInsideEnum {
+    return current_enum != nil;
+  };
+  
+  //
   - (void)seemEnumName: (NSString *)name {
     assert("Internal compiler error." && name);
     assert("Internal compiler error." &&
