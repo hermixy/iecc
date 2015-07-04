@@ -53,7 +53,7 @@
       /**
        *
        */
-      NSMutableArray *enum_values;
+      NSMutableDictionary *enum_values;
   };
   
   /**
@@ -81,6 +81,9 @@
   
   //
   - (void)seemEnumName: (NSString *)name;
+  
+  //
+  - (void)setValue: (NSNumber *)value forEnumValue: (NSString *)name;
   
   //
   - (NSArray *)enumValue: (NSString *)name;

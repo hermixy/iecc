@@ -32,7 +32,7 @@
     if((self = super.init)) {
       // Setup variables
       dictionary = NSMutableDictionary.new;
-      enum_values = NSMutableArray.new;
+      enum_values = NSMutableDictionary.new;
     };
     
     // As always...
@@ -77,10 +77,17 @@
   - (void)seemEnumName: (NSString *)name {
     assert("Internal compiler error." && name);
     assert("Internal compiler error." &&
-      ![enum_values containsObject: name.uppercaseString]);
+      [enum_values objectForKey: name.uppercaseString] == nil);
     
-    // 
-    [enum_values addObject: name.uppercaseString];
+    printf("Binding %s to value %s\n", name.uppercaseString.description.UTF8String, @(enum_values.count).description.UTF8String);
+    
+    //
+    [enum_values setObject: @(enum_values.count) forKey: name.uppercaseString];
+  };
+  
+  //
+  - (void)setValue: (NSNumber *)value forEnumValue: (NSString *)name {
+    
   };
   
   //
